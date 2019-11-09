@@ -50,7 +50,7 @@ public class SignatureUtil {
         bookVo.setBookId(1000);
         bookVo.setBookName("java");
         bookVo.setAppKey("appKey");
-        bookVo.setTimestamp(System.currentTimeMillis());
+        bookVo.setTimestamp(new Date().getTime());
         String str = SignatureUtil.getRequestParamStr(bookVo,new HashSet<String>(Arrays.asList("sign")));
         logger.info("sign str={}",str);
         String sign = DigestUtils.md5DigestAsHex(str.getBytes());

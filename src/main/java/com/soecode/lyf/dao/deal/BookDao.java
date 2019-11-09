@@ -1,7 +1,6 @@
-package com.soecode.lyf.dao;
+package com.soecode.lyf.dao.deal;
 
-import com.soecode.lyf.annotation.DataSourceChange;
-import com.soecode.lyf.entity.Book;
+import com.soecode.lyf.entity.deal.Book;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -14,8 +13,7 @@ public interface BookDao {
 	 * @param id
 	 * @return
 	 */
-	@DataSourceChange(slave = true)
-	Book queryById(long id);
+    Book queryById(long id);
 
 	/**
 	 * 查询所有图书
@@ -24,8 +22,7 @@ public interface BookDao {
 	 * @param limit 查询条数
 	 * @return
 	 */
-	@DataSourceChange(slave = true)
-	List<Book> queryAll(@Param("offset") int offset, @Param("limit") int limit);
+    List<Book> queryAll(@Param("offset") int offset, @Param("limit") int limit);
 
 	/**
 	 * 减少馆藏数量
@@ -35,6 +32,9 @@ public interface BookDao {
 	 */
 	int reduceNumber(long bookId);
 
-	@DataSourceChange(slave = true)
 	List<Book> queryByName(@Param("name") String name);
+
+	List<Book> queryByBookIdList(@Param("bookIdList")List<Integer> bookList);
+
+	int insert(Book book);
 }

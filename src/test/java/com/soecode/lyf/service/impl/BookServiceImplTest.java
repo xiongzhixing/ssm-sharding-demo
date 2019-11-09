@@ -1,8 +1,6 @@
 package com.soecode.lyf.service.impl;
 
 import com.soecode.lyf.BaseTest;
-import com.soecode.lyf.dto.AppointExecution;
-import com.soecode.lyf.entity.People;
 import com.soecode.lyf.service.BookService;
 import org.junit.Test;
 
@@ -18,8 +16,8 @@ public class BookServiceImplTest extends BaseTest {
 	public void testAppoint() throws Exception {
 		long bookId = 1001;
 		long studentId = 12345678910L;
-		AppointExecution execution = bookService.appoint(bookId, studentId);
-		System.out.println(execution);
+		//AppointExecution execution = bookService.appoint(bookId, studentId);
+		//System.out.println(execution);
 	}
 
 	@Test
@@ -29,15 +27,14 @@ public class BookServiceImplTest extends BaseTest {
 	}
 
 	@Test
-	public void test() throws Exception {
-		People people = new People();
-		people.setAge(19);
-		people.setPhone("151889009");
-		people.setSex(3);
-		people.setName("张三");
-
-		bookService.test(people);
+	public void testBatchInsert(){
+		try {
+			this.bookService.batchInsert();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
+
 
 	@Test
 	public void test11() throws Exception {
@@ -49,7 +46,7 @@ public class BookServiceImplTest extends BaseTest {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			this.bookService.test1();
+			//this.bookService.test1();
 		}).start();
 
 		new Thread(()->{
@@ -58,7 +55,7 @@ public class BookServiceImplTest extends BaseTest {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			this.bookService.test2();
+			//this.bookService.test2();
 		}).start();
 
 		countDownLatch.countDown();

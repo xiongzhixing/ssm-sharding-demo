@@ -1,8 +1,9 @@
 package com.soecode.lyf.manager;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.soecode.lyf.BaseTest;
-import com.soecode.lyf.entity.Book;
+import com.soecode.lyf.entity.deal.Book;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -15,7 +16,6 @@ public class BookManageTester extends BaseTest {
 
     @Test
     public void test() throws InterruptedException {
-        System.out.println(System.currentTimeMillis());
         System.out.println(JSON.toJSONString(bookManager.queryById(1)));
         TimeUnit.SECONDS.sleep(10);
         System.out.println(JSON.toJSONString(bookManager.queryById(1)));
@@ -43,5 +43,10 @@ public class BookManageTester extends BaseTest {
         TimeUnit.SECONDS.sleep(10);
         List<Book> bookList4 = bookManager.queryAll(1,10);
         System.out.println(JSON.toJSONString(bookList4));
+    }
+
+    @Test
+    public void test4(){
+        JSON.parseObject(new String(),new TypeReference<List<Book>>(){});
     }
 }

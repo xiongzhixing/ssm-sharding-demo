@@ -1,29 +1,19 @@
 package com.soecode.lyf.datasource;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.TypeReference;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.LoadingCache;
-import com.soecode.lyf.annotation.DataSourceChange;
-import com.soecode.lyf.entity.Book;
-import com.soecode.lyf.exception.DataSourceAspectException;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Aspect
 @Component
@@ -44,22 +34,13 @@ public class CacheAspect {
         if(cache == null){
             return jpt.proceed();
         }
-        Boolean isArray = false;
         Class resultType = ((MethodSignature)jpt.getSignature()).getMethod().getReturnType();
-        if(resultType == List.class){
-            isArray = true;
-            String classPath = ((MethodSignature)jpt.getSignature()).getMethod().getGenericReturnType().getTypeName();
-            Pattern pattern = Pattern.compile("^[a-zA-Z\\.]+<(.+)>$");
-            Matcher matcher = pattern.matcher(classPath);
-            matcher.find();
-            resultType = Class.forName(matcher.group(1));
-        }
         String classPath = jpt.getTarget().getClass().getName();
         String methodName = jpt.getSignature().getName();
         String[] paramNames = ((MethodSignature)jpt.getSignature()).getParameterNames();
         Object[] paramValues = jpt.getArgs();
 
-        StringBuilder key = new StringBuilder();
+        StringBuilder key = new StringBuilder("");
         key.append(classPath).append("_").append(methodName).append("_");
         if(paramNames != null && paramNames.length > 0){
             for(int i=0;i < paramNames.length;i++){
@@ -68,11 +49,7 @@ public class CacheAspect {
         }
         String json = cacheGuava.asMap().get(key.toString().substring(0,key.length() - 1));
         if(!StringUtils.isEmpty(json)){
-            if(!isArray){
-                return JSON.parseObject(json,resultType);
-            }else{
-                return JSON.parseArray(json,resultType);
-            }
+            return JSON.parseObject(json,resultType);
         }
         Object object = jpt.proceed();
         if(object != null){

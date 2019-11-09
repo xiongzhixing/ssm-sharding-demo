@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:sharding="http://shardingsphere.io/schema/shardingsphere/sharding"
+	   xmlns:master-slave="http://shardingsphere.io/schema/shardingsphere/masterslave"
+	   xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context
+                        http://www.springframework.org/schema/context/spring-context.xsd
+                        http://shardingsphere.io/schema/shardingsphere/sharding
+                        http://shardingsphere.io/schema/shardingsphere/sharding/sharding.xsd
+                        http://shardingsphere.io/schema/shardingsphere/masterslave
+                        http://shardingsphere.io/schema/shardingsphere/masterslave/master-slave.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<!-- 配置整合mybatis过程 -->
+	<!-- 1.配置数据库相关参数properties的属性：${url} -->
+	<context:property-placeholder location="classpath:jdbc.properties" />
+
+	<!-- 2.数据库连接池 -->
+	<bean id="baseDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<!-- c3p0连接池的私有属性 -->
+		<property name="maxPoolSize" value="30" />
+		<property name="minPoolSize" value="10" />
+		<!-- 关闭连接后不自动commit -->
+		<property name="autoCommitOnClose" value="false" />
+		<!-- 获取连接超时时间 -->
+		<property name="checkoutTimeout" value="10000" />
+		<!-- 当获取连接失败重试次数 -->
+		<property name="acquireRetryAttempts" value="2" />
+	</bean>
+
+	<!--第一组库-->
+	<!-- 主库 -->
+	<bean name="master0" parent="baseDataSource">
+		<!-- 配置连接池属性 -->
+		<property name="driverClass" value="${jdbc.write.driver0}" />
+		<property name="jdbcUrl" value="${jdbc.write.url0}" />
+		<property name="user" value="${jdbc.write.username0}" />
+		<property name="password" value="${jdbc.write.password0}" />
+	</bean>
+	<!-- 从库 -->
+	<bean name="slave0" parent="baseDataSource">
+		<!-- 配置连接池属性 -->
+		<property name="driverClass" value="${jdbc.read.driver0}" />
+		<property name="jdbcUrl" value="${jdbc.read.url0}" />
+		<property name="user" value="${jdbc.read.username0}" />
+		<property name="password" value="${jdbc.read.password0}" />
+	</bean>
+
+	<!--第二组-->
+	<!-- 主库 -->
+	<bean name="master1" parent="baseDataSource">
+		<!-- 配置连接池属性 -->
+		<property name="driverClass" value="${jdbc.write.driver1}" />
+		<property name="jdbcUrl" value="${jdbc.write.url1}" />
+		<property name="user" value="${jdbc.write.username1}" />
+		<property name="password" value="${jdbc.write.password1}" />
+	</bean>
+	<!-- 从库 -->
+	<bean name="slave1" parent="baseDataSource">
+		<!-- 配置连接池属性 -->
+		<property name="driverClass" value="${jdbc.read.driver1}" />
+		<property name="jdbcUrl" value="${jdbc.read.url1}" />
+		<property name="user" value="${jdbc.read.username1}" />
+		<property name="password" value="${jdbc.read.password1}" />
+	</bean>
+
+	<!--第三组-->
+	<!-- 主库 -->
+	<bean name="master2" parent="baseDataSource">
+		<!-- 配置连接池属性 -->
+		<property name="driverClass" value="${jdbc.write.driver2}" />
+		<property name="jdbcUrl" value="${jdbc.write.url2}" />
+		<property name="user" value="${jdbc.write.username2}" />
+		<property name="password" value="${jdbc.write.password2}" />
+	</bean>
+	<!-- 从库 -->
+	<bean name="slave2" parent="baseDataSource">
+		<!-- 配置连接池属性 -->
+		<property name="driverClass" value="${jdbc.read.driver2}" />
+		<property name="jdbcUrl" value="${jdbc.read.url2}" />
+		<property name="user" value="${jdbc.read.username2}" />
+		<property name="password" value="${jdbc.read.password2}" />
+	</bean>
+
+	<!--第四组-->
+	<!-- 主库 -->
+	<bean name="master3" parent="baseDataSource">
+		<!-- 配置连接池属性 -->
+		<property name="driverClass" value="${jdbc.write.driver3}" />
+		<property name="jdbcUrl" value="${jdbc.write.url3}" />
+		<property name="user" value="${jdbc.write.username3}" />
+		<property name="password" value="${jdbc.write.password3}" />
+	</bean>
+	<!-- 从库 -->
+	<bean name="slave3" parent="baseDataSource">
+		<!-- 配置连接池属性 -->
+		<property name="driverClass" value="${jdbc.read.driver3}" />
+		<property name="jdbcUrl" value="${jdbc.read.url3}" />
+		<property name="user" value="${jdbc.read.username3}" />
+		<property name="password" value="${jdbc.read.password3}" />
+	</bean>
+
+	<!-- 主从关系配置 -->
+	<bean id="randomStrategy" class="io.shardingsphere.core.api.algorithm.masterslave.RandomMasterSlaveLoadBalanceAlgorithm" />
+	<master-slave:data-source id="master_group0" master-data-source-name="master0" slave-data-source-names="slave0" strategy-ref="randomStrategy" />
+	<master-slave:data-source id="master_group1" master-data-source-name="master1" slave-data-source-names="slave1" strategy-ref="randomStrategy" />
+	<master-slave:data-source id="master_group2" master-data-source-name="master2" slave-data-source-names="slave2" strategy-ref="randomStrategy" />
+	<master-slave:data-source id="master_group3" master-data-source-name="master3" slave-data-source-names="slave3" strategy-ref="randomStrategy" />
+
+	<sharding:inline-strategy id="bookDatabaseStrategy" sharding-column="book_id" algorithm-expression="master_group$->{book_id % 4}" />
+	<sharding:inline-strategy id="bookTableStrategy" sharding-column="book_id" algorithm-expression="book_$->{book_id % 128}" />
+
+	<sharding:data-source id="shardingDataSource">
+		<sharding:sharding-rule data-source-names="master_group0,master_group1,master_group2,master_group3">
+			<sharding:table-rules>
+				<sharding:table-rule logic-table="book" actual-data-nodes="master_group$->{0..3}.book_$->{0..127}" database-strategy-ref="bookDatabaseStrategy" table-strategy-ref="bookTableStrategy" generate-key-column-name="book_id"/>
+			</sharding:table-rules>
+		</sharding:sharding-rule>
+		<sharding:props>
+			<prop key="sql.show">true</prop>
+		</sharding:props>
+	</sharding:data-source>
+
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="shardingDataSource" />
+		<qualifier value="shardingManager" />
+	</bean>
+	<tx:annotation-driven />
+
+	<!-- 3.配置SqlSessionFactory对象 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 注入数据库连接池 -->
+		<property name="dataSource" ref="shardingDataSource" />
+		<!-- 配置MyBaties全局配置文件:mybatis-config.xml -->
+		<property name="configLocation" value="classpath:mybatis-config.xml" />
+		<!-- 扫描entity包 使用别名 -->
+		<property name="typeAliasesPackage" value="com.soecode.lyf.entity.deal" />
+		<!-- 扫描sql配置文件:mapper需要的xml文件 -->
+		<property name="mapperLocations" value="classpath:mapper/deal-mapper/*.xml" />
+	</bean>
+
+	<!-- 4.配置扫描Dao接口包，动态实现Dao接口，注入到spring容器中 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 注入sqlSessionFactory -->
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+		<!-- 给出需要扫描Dao接口包 -->
+		<property name="basePackage" value="com.soecode.lyf.dao.deal" />
+	</bean>
+	<!--开启aspect注解扫描-->
+	<aop:aspectj-autoproxy/>
+</beans>
