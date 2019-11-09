@@ -26,4 +26,12 @@
 			a.book_id = #{bookId}
 		AND a.student_id = #{studentId}
 	</select>
+
+	<update id="updateAppointment">
+		UPDATE appointment
+		SET appoint_time = now()
+		WHERE
+		book_id = #{bookId}
+		AND student_id = #{studentId}
+	</update>
 </mapper>

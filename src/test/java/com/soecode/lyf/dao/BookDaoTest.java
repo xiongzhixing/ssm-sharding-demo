@@ -2,6 +2,7 @@ package com.soecode.lyf.dao;
 
 import java.util.List;
 
+import com.alibaba.fastjson.JSON;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,6 +34,11 @@ public class BookDaoTest extends BaseTest {
 		long bookId = 1000;
 		int update = bookDao.reduceNumber(bookId);
 		System.out.println("update=" + update);
+	}
+
+	@Test
+	public void testByName() throws Exception {
+		System.out.println(JSON.toJSONString(bookDao.queryByName("'asd' union select 4,'java',123")));
 	}
 
 }

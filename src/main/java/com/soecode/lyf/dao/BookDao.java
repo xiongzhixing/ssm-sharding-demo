@@ -35,4 +35,6 @@ public interface BookDao {
 	 */
 	int reduceNumber(long bookId);
 
+	@DataSourceChange(slave = true)
+	List<Book> queryByName(@Param("name") String name);
 }

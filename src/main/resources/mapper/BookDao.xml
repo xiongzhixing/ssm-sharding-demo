@@ -27,6 +27,21 @@
 			book_id
 		LIMIT #{offset}, #{limit}
 	</select>
+
+	<select id="queryByName" resultType="Book">
+		SELECT
+		book_id,
+		name,
+		number
+		FROM
+		book
+		where 1=1
+		<if test="name!=null and name!=''">
+			and name=${name}
+		</if>
+	</select>
+
+
 	
 	<update id="reduceNumber">
 		UPDATE book

@@ -1,26 +1,26 @@
 package com.soecode.lyf.service.impl;
 
-import java.util.List;
-
 import com.alibaba.fastjson.JSON;
+import com.soecode.lyf.dao.AppointmentDao;
+import com.soecode.lyf.dao.BookDao;
+import com.soecode.lyf.dto.AppointExecution;
+import com.soecode.lyf.entity.Appointment;
+import com.soecode.lyf.entity.Book;
 import com.soecode.lyf.entity.People;
+import com.soecode.lyf.enums.AppointStateEnum;
+import com.soecode.lyf.exception.AppointException;
+import com.soecode.lyf.exception.NoNumberException;
+import com.soecode.lyf.exception.RepeatAppointException;
 import com.soecode.lyf.service.BaseService;
+import com.soecode.lyf.service.BookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.soecode.lyf.dao.AppointmentDao;
-import com.soecode.lyf.dao.BookDao;
-import com.soecode.lyf.dto.AppointExecution;
-import com.soecode.lyf.entity.Appointment;
-import com.soecode.lyf.entity.Book;
-import com.soecode.lyf.enums.AppointStateEnum;
-import com.soecode.lyf.exception.AppointException;
-import com.soecode.lyf.exception.NoNumberException;
-import com.soecode.lyf.exception.RepeatAppointException;
-import com.soecode.lyf.service.BookService;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class BookServiceImpl extends BaseServiceImpl implements BookService,BaseService {
@@ -78,4 +78,37 @@ public class BookServiceImpl extends BaseServiceImpl implements BookService,Base
 			throw new AppointException("appoint inner error:" + e.getMessage());
 		}
 	}
+
+	@Override
+	public void test(People people){
+		List<String> paramMesList = validateParam(people);
+		if(paramMesList.size() > 0){
+			System.out.println(JSON.toJSONString(paramMesList));
+			return;
+		}
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public void test1(){
+		//1000	12345678910	2018-03-31 09:50:40
+		this.bookDao.reduceNumber(1000);
+		try {
+			TimeUnit.SECONDS.sleep(5);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		this.appointmentDao.updateAppointment(1000,12345678910L);
+	}
+
+	@Transactional(rollbackFor = Exception.class)
+	public void test2(){
+		this.appointmentDao.updateAppointment(1000,12345678910L);
+		try {
+			TimeUnit.SECONDS.sleep(5);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		this.bookDao.reduceNumber(1000);
+	}
+
 }

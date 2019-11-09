@@ -26,4 +26,5 @@ public interface AppointmentDao {
 	//@DataSourceChange(slave = true)
 	Appointment queryByKeyWithBook(@Param("bookId") long bookId, @Param("studentId") long studentId);
 
+	int updateAppointment(@Param("bookId") long bookId, @Param("studentId") long studentId);
 }

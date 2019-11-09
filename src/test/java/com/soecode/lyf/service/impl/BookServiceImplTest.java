@@ -7,6 +7,7 @@ import com.soecode.lyf.service.BookService;
 import org.junit.Test;
 
 import javax.annotation.Resource;
+import java.util.concurrent.CountDownLatch;
 
 public class BookServiceImplTest extends BaseTest {
 
@@ -35,7 +36,34 @@ public class BookServiceImplTest extends BaseTest {
 		people.setSex(3);
 		people.setName("张三");
 
-		//bookService.test(people);
+		bookService.test(people);
+	}
+
+	@Test
+	public void test11() throws Exception {
+		CountDownLatch countDownLatch = new CountDownLatch(1);
+
+		new Thread(()->{
+			try {
+				countDownLatch.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			this.bookService.test1();
+		}).start();
+
+		new Thread(()->{
+			try {
+				countDownLatch.await();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			this.bookService.test2();
+		}).start();
+
+		countDownLatch.countDown();
+
+		while(true){}
 	}
 
 }

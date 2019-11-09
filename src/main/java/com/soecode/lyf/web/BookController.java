@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import com.soecode.lyf.annotation.DocAnnotation;
 import com.soecode.lyf.entity.People;
-import com.soecode.lyf.manage.CacheManage;
 import com.soecode.lyf.vo.BookVo;
 import org.apache.ibatis.annotations.Param;
 import org.hibernate.validator.constraints.NotBlank;
@@ -38,9 +37,6 @@ public class BookController extends BaseController{
 	@Autowired
 	private BookService bookService;
 
-	@Autowired
-	private CacheManage cacheManage;
-
 	@RequestMapping(method=RequestMethod.POST,value = "/list")
 	@ResponseBody
 	@DocAnnotation(comment="查询列表方法")
@@ -59,9 +55,7 @@ public class BookController extends BaseController{
 	@RequestMapping(method = RequestMethod.GET,value = "/detail")
 	@ResponseBody
 	private Result<Book> detail(@RequestParam(value = "bookId") @NotNull(message = "bookId不能为空") Long bookId) {
-		//Book book = bookService.getById(bookId);
-		Book book = cacheManage.get(bookId);
-		System.out.println("asdasd");
+		Book book = bookService.getById(bookId);
 		return Result.success(book);
 	}
 
