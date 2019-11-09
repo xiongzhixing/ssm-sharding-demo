@@ -2,7 +2,7 @@ package com.soecode.lyf.service.impl;
 
 import com.soecode.lyf.dao.deal.BookDao;
 import com.soecode.lyf.dao.idgenerate.BookIdGenerateDao;
-import com.soecode.lyf.entity.deal.Book;
+import com.soecode.lyf.entity.deal.BookDO;
 import com.soecode.lyf.service.BaseService;
 import com.soecode.lyf.service.BookService;
 import org.slf4j.Logger;
@@ -27,12 +27,12 @@ public class BookServiceImpl extends BaseServiceImpl implements BookService,Base
 	private BookIdGenerateDao bookIdGenerateDao;
 
 	@Override
-	public Book getById(long bookId) {
+	public BookDO getById(long bookId) {
 		return bookDao.queryById(bookId);
 	}
 
 	@Override
-	public List<Book> getList() {
+	public List<BookDO> getList() {
 		return bookDao.queryAll(0, 1000);
 	}
 
@@ -43,7 +43,7 @@ public class BookServiceImpl extends BaseServiceImpl implements BookService,Base
 			//BookIdGenerate bookIdGenerate = new BookIdGenerate();
 			//bookIdGenerate.setName("a");
 			//this.bookIdGenerateDao.replace(bookIdGenerate);
-			Book book = new Book();
+			BookDO book = new BookDO();
 			//book.setBookId(bookIdGenerate.getId());
 			book.setName("java");
 			book.setNumber(888);

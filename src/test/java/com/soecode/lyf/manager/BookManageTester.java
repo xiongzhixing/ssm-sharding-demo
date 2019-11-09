@@ -3,7 +3,7 @@ package com.soecode.lyf.manager;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.soecode.lyf.BaseTest;
-import com.soecode.lyf.entity.deal.Book;
+import com.soecode.lyf.entity.deal.BookDO;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -29,24 +29,24 @@ public class BookManageTester extends BaseTest {
 
     @Test
     public void test11() throws InterruptedException {
-        List<Book> bookList = bookManager.queryAll(1,10);
+        List<BookDO> bookList = bookManager.queryAll(1,10);
         System.out.println(JSON.toJSONString(bookList));
         TimeUnit.SECONDS.sleep(10);
-        List<Book> bookList1 = bookManager.queryAll(1,10);
+        List<BookDO> bookList1 = bookManager.queryAll(1,10);
         System.out.println(JSON.toJSONString(bookList1));
         TimeUnit.SECONDS.sleep(10);
-        List<Book> bookList2 = bookManager.queryAll(1,10);
+        List<BookDO> bookList2 = bookManager.queryAll(1,10);
         System.out.println(JSON.toJSONString(bookList2));
         TimeUnit.SECONDS.sleep(10);
-        List<Book> bookList3 = bookManager.queryAll(1,10);
+        List<BookDO> bookList3 = bookManager.queryAll(1,10);
         System.out.println(JSON.toJSONString(bookList3));
         TimeUnit.SECONDS.sleep(10);
-        List<Book> bookList4 = bookManager.queryAll(1,10);
+        List<BookDO> bookList4 = bookManager.queryAll(1,10);
         System.out.println(JSON.toJSONString(bookList4));
     }
 
     @Test
     public void test4(){
-        JSON.parseObject(new String(),new TypeReference<List<Book>>(){});
+        JSON.parseObject(new String(),new TypeReference<List<BookDO>>(){});
     }
 }

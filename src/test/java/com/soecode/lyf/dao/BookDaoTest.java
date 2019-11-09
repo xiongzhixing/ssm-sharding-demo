@@ -1,16 +1,14 @@
 package com.soecode.lyf.dao;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import com.alibaba.fastjson.JSON;
+import com.soecode.lyf.BaseTest;
 import com.soecode.lyf.dao.deal.BookDao;
+import com.soecode.lyf.entity.deal.BookDO;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.soecode.lyf.BaseTest;
-import com.soecode.lyf.entity.deal.Book;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BookDaoTest extends BaseTest {
 
@@ -20,14 +18,15 @@ public class BookDaoTest extends BaseTest {
 	@Test
 	public void testQueryById() throws Exception {
 		long bookId = 1000;
-		Book book = bookDao.queryById(bookId);
+		BookDO book = bookDao.queryById(bookId);
 		System.out.println(book);
 	}
 
 	@Test
 	public void testQueryAll() throws Exception {
-		List<Book> books = bookDao.queryAll(0, 4);
-		for (Book book : books) {
+		System.out.println();
+		List<BookDO> books = bookDao.queryAll(0, 4);
+		for (BookDO book : books) {
 			System.out.println(book);
 		}
 	}
@@ -46,8 +45,8 @@ public class BookDaoTest extends BaseTest {
 
 	@Test
 	public void testInsert() throws Exception {
-		Book book = new Book();
-		book.setBookId(1009);
+		BookDO book = new BookDO();
+		book.setBookId(1009L);
 		book.setName("java");
 		book.setNumber(1000);
 

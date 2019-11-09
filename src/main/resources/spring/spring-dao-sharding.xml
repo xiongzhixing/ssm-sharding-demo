@@ -32,6 +32,16 @@
 
 	<!--第一组库-->
 	<!-- 主库 -->
+	<bean name="ssmShardingSingle" parent="baseDataSource">
+		<!-- 配置连接池属性 -->
+		<property name="driverClass" value="${jdbc.driver}" />
+		<property name="jdbcUrl" value="${jdbc.url}" />
+		<property name="user" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<!--第一组库-->
+	<!-- 主库 -->
 	<bean name="master0" parent="baseDataSource">
 		<!-- 配置连接池属性 -->
 		<property name="driverClass" value="${jdbc.write.driver0}" />
@@ -113,8 +123,9 @@
 	<sharding:inline-strategy id="bookTableStrategy" sharding-column="book_id" algorithm-expression="book_$->{book_id % 128}" />
 
 	<sharding:data-source id="shardingDataSource">
-		<sharding:sharding-rule data-source-names="master_group0,master_group1,master_group2,master_group3">
+		<sharding:sharding-rule data-source-names="ssmShardingSingle,master_group0,master_group1,master_group2,master_group3">
 			<sharding:table-rules>
+				<sharding:table-rule logic-table="appointment" actual-data-nodes="ssmShardingSingle.appointment"/>
 				<sharding:table-rule logic-table="book" actual-data-nodes="master_group$->{0..3}.book_$->{0..127}" database-strategy-ref="bookDatabaseStrategy" table-strategy-ref="bookTableStrategy" generate-key-column-name="book_id"/>
 			</sharding:table-rules>
 		</sharding:sharding-rule>
@@ -136,7 +147,7 @@
 		<!-- 配置MyBaties全局配置文件:mybatis-config.xml -->
 		<property name="configLocation" value="classpath:mybatis-config.xml" />
 		<!-- 扫描entity包 使用别名 -->
-		<property name="typeAliasesPackage" value="com.soecode.lyf.entity.deal" />
+		<!--<property name="typeAliasesPackage" value="com.soecode.lyf.entity.deal" />-->
 		<!-- 扫描sql配置文件:mapper需要的xml文件 -->
 		<property name="mapperLocations" value="classpath:mapper/deal-mapper/*.xml" />
 	</bean>
