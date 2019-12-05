@@ -235,6 +235,13 @@
             <artifactId>sharding-jdbc-spring-namespace</artifactId>
             <version>3.0.0.M1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/net.sf.dozer/dozer -->
+        <dependency>
+            <groupId>net.sf.dozer</groupId>
+            <artifactId>dozer</artifactId>
+            <version>5.5.1</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>ssm</finalName>

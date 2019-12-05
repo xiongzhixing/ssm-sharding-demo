@@ -4,21 +4,22 @@ import com.alibaba.fastjson.JSON;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class TestLamda {
     public static void main(String[] args) {
-        List<People> peopleList = new ArrayList<>();
-        peopleList.add(new People(21,"zs"));
+        List<People> peopleList = null;
+        /*peopleList.add(new People(21,"zs"));
         peopleList.add(new People(12,"ls"));
         peopleList.add(new People(23,"ww"));
-        peopleList.add(new People(23,"ww"));
+        peopleList.add(new People(23,"ww"));*/
 
-        System.out.println(peopleList.parallelStream().map(p -> p.getAge()).reduce((sum,age) -> sum += age).get());
+        System.out.println(Optional.ofNullable(peopleList).orElse(new ArrayList<>()).stream().findFirst().orElse(null));
 
-        System.out.println(JSON.toJSONString(peopleList.parallelStream().distinct().collect(Collectors.toList())));
+      /*  System.out.println(peopleList.parallelStream().map(p -> p.getAge()).reduce((sum,age) -> sum += age).get());
 
-
+        System.out.println(JSON.toJSONString(peopleList.parallelStream().distinct().collect(Collectors.toList())));*/
 
     }
 
