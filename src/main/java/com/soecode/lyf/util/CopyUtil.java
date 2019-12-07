@@ -33,6 +33,8 @@ public class CopyUtil {
         peopleList.add(People.builder().age(200L).build());
 
         System.out.println(CopyUtil.copyList(peopleList,People1.class));
+
+
     }
 
     @Data
