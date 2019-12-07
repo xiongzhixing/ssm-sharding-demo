@@ -1,18 +1,23 @@
 package com.soecode.lyf.global;
 
+import com.alibaba.ttl.TransmittableThreadLocal;
+
+/**
+ * @author Administrator
+ */
 public class RequestContentManager {
-    private static ThreadLocal<RequestContent> requestContentThreadLocal = new InheritableThreadLocal<RequestContent>(){
+    private static ThreadLocal<RequestContent> requestContentThreadLocal = new TransmittableThreadLocal<RequestContent>() {
         @Override
         public RequestContent initialValue() {
             return new RequestContent();
         }
     };
 
-    public static RequestContent get(){
+    public static RequestContent get() {
         return requestContentThreadLocal.get();
     }
 
-    public static void removeAll(){
-        requestContentThreadLocal.get().removeAll();
+    public static void remove() {
+        requestContentThreadLocal.remove();
     }
 }
