@@ -33,7 +33,7 @@ public class VipAspect {
         } catch (Throwable throwable) {
             logger.error("VipAspect#doAround catch a exception.",throwable);
         }finally {
-            requestContent.removeAll();
+            RequestContentManager.remove();
         }
         return result;
     }

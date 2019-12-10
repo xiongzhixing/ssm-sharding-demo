@@ -22,8 +22,4 @@ public class RequestContent extends HashMap<String,String> {
         this.put(USER_NAME,userName);
     }
 
-    public void removeAll(){
-        this.remove(USER_ID);
-        this.remove(USER_NAME);
-    }
 }
