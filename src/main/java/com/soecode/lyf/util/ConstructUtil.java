@@ -1,13 +1,13 @@
 package com.soecode.lyf.util;
 
-import com.fasterxml.jackson.databind.ser.std.StdArraySerializers;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.cglib.core.ReflectUtils;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.List;
 public class ConstructUtil {
     private static List<Boolean> booleanList = Arrays.asList(true,false);
 
-    public static <T> T construct(Class<T> cls) throws IllegalAccessException, InstantiationException, InvocationTargetException {
+    public static <T> T construct(Class<T> cls) throws Exception {
         if (cls == null) {
             return null;
         }
@@ -23,21 +23,52 @@ public class ConstructUtil {
         PropertyDescriptor[] propertyDescriptors = ReflectUtils.getBeanProperties(cls);
         for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
             Class proCls = propertyDescriptor.getPropertyType();
-            if(Boolean.class == proCls || boolean.class == proCls){
-                propertyDescriptor.getWriteMethod().invoke(t,generateBoolean());
-            }else if(String.class == proCls){
-                propertyDescriptor.getWriteMethod().invoke(t,generateString());
-            }else if(Date.class == proCls){
-                propertyDescriptor.getWriteMethod().invoke(t,generateDate());
-            }else if(Integer.class == proCls || int.class == proCls){
-                propertyDescriptor.getWriteMethod().invoke(t,generateInteger());
-            }else if(Long.class == proCls || long.class == proCls){
-                propertyDescriptor.getWriteMethod().invoke(t,generateLong());
+            if(proCls.getClassLoader() == null){
+                // JAVA 类型
+                boolean execute = setBaseType(t, propertyDescriptor, proCls,false);
+                if(execute){
+                    continue;
+                }
+                if(proCls.getName().contains("List")){
+                    //List 集合
+                    Parameter parameter = propertyDescriptor.getWriteMethod().getParameters()[0];
+                    Class paramCls = (Class) ((ParameterizedType)parameter.getParameterizedType()).getActualTypeArguments()[0];
+                    if(paramCls.getClassLoader() != null){
+                        //自定义类型
+                        propertyDescriptor.getWriteMethod().invoke(t,Arrays.asList(construct(paramCls)));
+                    }else{
+                        setBaseType(t, propertyDescriptor, proCls,true);
+                    }
+                }else{
+                    throw new RuntimeException("未知的java类型：" + proCls.getName());
+                }
             }else{
-                throw new RuntimeException("不支持的类型");
+                //自定义类型
+                propertyDescriptor.getWriteMethod().invoke(t,construct(proCls));
             }
+
         }
         return t;
+    }
+
+    private static <T> boolean setBaseType(T t, PropertyDescriptor propertyDescriptor, Class proCls,boolean isArray) throws Exception{
+        if(Boolean.class == proCls || boolean.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateBoolean()):generateBoolean());
+            return true;
+        }else if(String.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateString()):generateString());
+            return true;
+        }else if(Date.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateDate()):generateDate());
+            return true;
+        }else if(Integer.class == proCls || int.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateInteger()):generateInteger());
+            return true;
+        }else if(Long.class == proCls || long.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateLong()):generateLong());
+            return true;
+        }
+        return false;
     }
 
     private static boolean generateBoolean(){
@@ -66,7 +97,7 @@ public class ConstructUtil {
         return (long)(Math.random() * Long.MAX_VALUE);
     }
 
-    public static void main(String[] args) throws IllegalAccessException, InvocationTargetException, InstantiationException {
+    public static void main(String[] args) throws Exception {
         System.out.println(ConstructUtil.construct(People.class));
         System.out.println(ConstructUtil.construct(Women.class));
     }
@@ -90,5 +121,12 @@ public class ConstructUtil {
         private Date date;
         private Long height;
         private long d;
+        private List<Dog> dogList;
+    }
+
+    @Data
+    @ToString(callSuper = true)
+    static class Dog{
+        private String name;
     }
 }
