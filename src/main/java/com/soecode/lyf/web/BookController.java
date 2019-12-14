@@ -40,12 +40,12 @@ public class BookController extends BaseController{
 	@RequestMapping(method=RequestMethod.POST,value = "/list")
 	@ResponseBody
 	@DocAnnotation(comment="查询列表方法")
-	public Result<List<Book>> list(@RequestBody @Validated BookVo book,BindingResult result) {
+	public Object list(@RequestBody @Validated BookVo book/*,BindingResult result*/) {
 		Result<List<Book>> res = new Result<>();
-		if(result.hasErrors()){
+		/*if(result.hasErrors()){
 			res.setErrMessage(result.getAllErrors().stream().filter(error -> error != null).map(error -> error.getDefaultMessage()).collect(Collectors.toList()).toString());
 			return res;
-		}
+		}*/
 		List<Book> list = bookService.getList();
 		res.setData(list);
 		return res;
@@ -54,7 +54,7 @@ public class BookController extends BaseController{
 	@DocAnnotation(comment = "查询详情方法")
 	@RequestMapping(method = RequestMethod.GET,value = "/detail")
 	@ResponseBody
-	private Result<Book> detail(@RequestParam(value = "bookId") @NotNull(message = "bookId不能为空") Long bookId) {
+	private Object detail(@RequestParam(value = "bookId") @NotNull(message = "bookId不能为空") Long bookId) {
 		Book book = bookService.getById(bookId);
 		return Result.success(book);
 	}
@@ -63,7 +63,7 @@ public class BookController extends BaseController{
 	@RequestMapping(value = "/{bookId}/appoint")
 	@ResponseBody
 	@DocAnnotation(comment="订阅书的方法")
-	private Result<List<AppointExecution>> appoint(@PathVariable("bookId") Long bookId, @RequestParam("studentId") Long studentId) {
+	public Object appoint(@PathVariable("bookId") Long bookId, @RequestParam("studentId") Long studentId) {
 		if (studentId == null || studentId.equals("")) {
 			return null;
 		}
