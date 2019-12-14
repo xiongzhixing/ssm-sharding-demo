@@ -5,6 +5,8 @@ import com.soecode.lyf.entity.Book;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang3.time.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cglib.core.ReflectUtils;
 
 import java.beans.PropertyDescriptor;
@@ -16,41 +18,47 @@ import java.util.*;
  * @author Administrator
  */
 public class ConstructUtil {
+    private static final Logger logger = LoggerFactory.getLogger(ConstructUtil.class);
 
-    public static <T> T construct(Class<T> cls) throws Exception {
+    public static <T> T construct(Class<T> cls){
         if (cls == null) {
             return null;
         }
-        T t = cls.newInstance();
-        PropertyDescriptor[] propertyDescriptors = ReflectUtils.getBeanProperties(cls);
-        for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
-            Class proCls = propertyDescriptor.getPropertyType();
-            if(proCls.getClassLoader() == null){
-                // JAVA 类型
-                boolean execute = setBaseType(t, propertyDescriptor, proCls,false);
-                if(execute){
-                    continue;
-                }
-                if(proCls.getName().contains("List")){
-                    //List 集合
-                    Parameter parameter = propertyDescriptor.getWriteMethod().getParameters()[0];
-                    Class paramCls = (Class) ((ParameterizedType)parameter.getParameterizedType()).getActualTypeArguments()[0];
-                    if(paramCls.getClassLoader() != null){
-                        //自定义类型
-                        propertyDescriptor.getWriteMethod().invoke(t,Arrays.asList(construct(paramCls)));
+        try{
+            T t = cls.newInstance();
+            PropertyDescriptor[] propertyDescriptors = ReflectUtils.getBeanProperties(cls);
+            for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
+                Class proCls = propertyDescriptor.getPropertyType();
+                if(proCls.getClassLoader() == null){
+                    // JAVA 类型
+                    boolean execute = setBaseType(t, propertyDescriptor, proCls,false);
+                    if(execute){
+                        continue;
+                    }
+                    if(proCls.getName().contains("List")){
+                        //List 集合
+                        Parameter parameter = propertyDescriptor.getWriteMethod().getParameters()[0];
+                        Class paramCls = (Class) ((ParameterizedType)parameter.getParameterizedType()).getActualTypeArguments()[0];
+                        if(paramCls.getClassLoader() != null){
+                            //自定义类型
+                            propertyDescriptor.getWriteMethod().invoke(t,Arrays.asList(construct(paramCls)));
+                        }else{
+                            setBaseType(t, propertyDescriptor, proCls,true);
+                        }
                     }else{
-                        setBaseType(t, propertyDescriptor, proCls,true);
+                        throw new RuntimeException("未知的java类型：" + proCls.getName());
                     }
                 }else{
-                    throw new RuntimeException("未知的java类型：" + proCls.getName());
+                    //自定义类型
+                    propertyDescriptor.getWriteMethod().invoke(t,construct(proCls));
                 }
-            }else{
-                //自定义类型
-                propertyDescriptor.getWriteMethod().invoke(t,construct(proCls));
             }
-
+            return t;
+        }catch(Exception e){
+            logger.error("ConstructUtil#construct catch a exception.",e);
+            return null;
         }
-        return t;
+
     }
 
     private static <T> boolean setBaseType(T t, PropertyDescriptor propertyDescriptor, Class proCls,boolean isArray) throws Exception{

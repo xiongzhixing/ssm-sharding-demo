@@ -14,12 +14,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * @author Administrator
+ */
 public class RegisterSignatireValidator implements Validator {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final Set<String> excludeProperties = new HashSet<>(Arrays.asList("sign"));
     @Override
-    public boolean supports(Class<?> aClass) {
-        return BaseVo.class.equals(aClass.getSuperclass());
+    public boolean supports(Class<?> cls) {
+        return cls == null ? false : BaseVo.class.isAssignableFrom(cls);
     }
 
     @Override
