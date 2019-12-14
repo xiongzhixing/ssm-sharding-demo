@@ -1,5 +1,7 @@
 package com.soecode.lyf.util;
 
+import com.alibaba.fastjson.JSON;
+import com.soecode.lyf.entity.Book;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.lang3.time.DateUtils;
@@ -11,9 +13,9 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 public class ConstructUtil {
-    private static List<Boolean> booleanList = Arrays.asList(true,false);
 
     public static <T> T construct(Class<T> cls) throws Exception {
         if (cls == null) {
@@ -55,11 +57,14 @@ public class ConstructUtil {
         if(Boolean.class == proCls || boolean.class == proCls){
             propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateBoolean()):generateBoolean());
             return true;
-        }else if(String.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateString()):generateString());
+        }else if(Byte.class == proCls || byte.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateByte()):generateByte());
             return true;
-        }else if(Date.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateDate()):generateDate());
+        }else if(Character.class == proCls || char.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateChar()):generateChar());
+            return true;
+        }else if(Short.class == proCls || short.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateShort()):generateShort());
             return true;
         }else if(Integer.class == proCls || int.class == proCls){
             propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateInteger()):generateInteger());
@@ -67,19 +72,51 @@ public class ConstructUtil {
         }else if(Long.class == proCls || long.class == proCls){
             propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateLong()):generateLong());
             return true;
+        }else if(Float.class == proCls || float.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateFloat()):generateFloat());
+            return true;
+        }else if(Double.class == proCls || double.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateDouble()):generateDouble());
+            return true;
+        }else if(String.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateString()):generateString());
+            return true;
+        }else if(Date.class == proCls){
+            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateDate()):generateDate());
+            return true;
         }
         return false;
     }
 
     private static boolean generateBoolean(){
-        return booleanList.get((int)(Math.random() * 2));
+        return ((int)(Math.random() * 2) == 0) ? false : true;
+    }
+
+    private static byte generateByte(){
+        return (byte)((int)(Math.random() * 256) - 128);
+    }
+
+    private static char generateChar(){
+        int temp = (int)(Math.random() * 26);
+        return (char)(temp + (temp % 2 == 0 ? 65 : 97));
+    }
+
+    private static short generateShort(){
+        return (short)((int)(Math.random() * Math.pow(2,16)) + Short.MIN_VALUE);
+    }
+
+    public static double generateDouble() {
+        return Double.MIN_VALUE + ((Double.MAX_VALUE - Double.MIN_VALUE) * new Random().nextDouble());
+    }
+
+    public static float generateFloat() {
+        return Float.MIN_VALUE + ((Float.MAX_VALUE - Float.MIN_VALUE) * new Random().nextFloat());
     }
 
     private static  String generateString(){
         StringBuilder stringBuilder = new StringBuilder();
         for(int i = 0;i < ((int)(Math.random() * 20) + 5);i++){
-            int temp = (int)(Math.random() * 26);
-            stringBuilder.append((char)(temp + (temp % 2 == 0 ? 65 : 97)));
+            stringBuilder.append(generateChar());
         }
         return stringBuilder.toString();
     }
@@ -98,8 +135,9 @@ public class ConstructUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        System.out.println(ConstructUtil.construct(People.class));
-        System.out.println(ConstructUtil.construct(Women.class));
+        System.out.println(JSON.toJSONString(ConstructUtil.construct(People.class)));
+        System.out.println(JSON.toJSONString(ConstructUtil.construct(Women.class)));
+        System.out.println(JSON.toJSONString(ConstructUtil.construct(Book.class)));
     }
 
 
@@ -107,21 +145,35 @@ public class ConstructUtil {
     @Data
     @ToString(callSuper = true)
     static class People{
-        private String name;
-        private int c;
-        private Boolean aBoolean;
-        private boolean bBoolean;
+        private boolean a;
+        private Boolean b;
+        private byte c;
+        private Byte d;
+        private char e;
+        private Character f;
+        private short g;
+        private Short h;
+        private int i;
+        private Integer j;
+        private Long k;
+        private long l;
+        private float m;
+        private Float n;
+        private Double o;
+        private double p;
+        private String q;
+        private Date r;
+
+        private Dog s;
+        private List<Dog> t;
+
 
     }
 
     @Data
     @ToString(callSuper = true)
     static class Women extends People{
-        private Integer age;
-        private Date date;
-        private Long height;
-        private long d;
-        private List<Dog> dogList;
+        private List<Dog> v;
     }
 
     @Data
