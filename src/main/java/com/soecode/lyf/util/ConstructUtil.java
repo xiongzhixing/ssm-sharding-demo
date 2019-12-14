@@ -10,11 +10,11 @@ import org.springframework.cglib.core.ReflectUtils;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
+/**
+ * @author Administrator
+ */
 public class ConstructUtil {
 
     public static <T> T construct(Class<T> cls) throws Exception {
@@ -166,6 +166,8 @@ public class ConstructUtil {
 
         private Dog s;
         private List<Dog> t;
+
+        //private Set<String> u;
 
 
     }
