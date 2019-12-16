@@ -14,7 +14,7 @@ import java.util.*;
 public class SignatureUtil {
     private static final Logger logger = LoggerFactory.getLogger(SignatureUtil.class);
 
-    public static List<String> getRequestParamList(Object o, Set<String> excludeProperties) throws Exception {
+    public static List<String> getRequestParamList(Object o, Set<String> excludeProperties){
         List<String> properties = new ArrayList<>();
         if (o == null) {
             return properties;
@@ -34,15 +34,21 @@ public class SignatureUtil {
             return properties;
         } catch (Exception e) {
             logger.error("SignatureUtil#getRequestParam catch a exception.",e);
-            throw e;
+            return null;
         }
     }
 
-    public static String getRequestParamStr(Object o, Set<String> excludeProperties) throws Exception {
-        List<String> keyValList = getRequestParamList(o,excludeProperties);
-        StringBuilder stringBuilder = new StringBuilder("");
-        keyValList.stream().forEach(str -> stringBuilder.append(str).append("&"));
-        return stringBuilder.toString().substring(0,stringBuilder.length() - 1);
+    public static String getRequestParamStr(Object o, Set<String> excludeProperties){
+        try{
+            List<String> keyValList = getRequestParamList(o,excludeProperties);
+            StringBuilder stringBuilder = new StringBuilder("");
+            keyValList.stream().forEach(str -> stringBuilder.append(str).append("&"));
+            return stringBuilder.toString().substring(0,stringBuilder.length() - 1);
+        }catch (Exception e){
+            logger.error("SignatureUtil#getRequestParamStr catch a exception",e);
+            return null;
+        }
+
     }
 
     public static void main(String[] args) throws Exception {

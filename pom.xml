@@ -7,6 +7,9 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>ssm Maven Webapp</name>
     <url>http://github.com/liyifeng1994/ssm</url>
+    <properties>
+        <spring.version>4.3.2.RELEASE</spring.version>
+    </properties>
     <dependencies>
         <!-- 单元测试 -->
         <dependency>
@@ -75,12 +78,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>4.1.7.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
-            <version>4.1.7.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.aspectj/aspectjtools -->
         <dependency>
@@ -92,35 +95,35 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>4.1.7.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <!-- 2)Spring DAO层 -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
-            <version>4.1.7.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
-            <version>4.1.7.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <!-- 3)Spring web -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>4.3.2.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>4.1.7.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
         <!-- 4)Spring test -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>4.1.7.RELEASE</version>
+            <version>${spring.version}</version>
         </dependency>
 
         <!-- redis客户端:Jedis -->
@@ -211,6 +214,20 @@
             <artifactId>guava</artifactId>
             <version>23.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5.2</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/commons-codec/commons-codec -->
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.13</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>ssm</finalName>

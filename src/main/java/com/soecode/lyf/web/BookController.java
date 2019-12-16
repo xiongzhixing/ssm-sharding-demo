@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import com.soecode.lyf.annotation.DocAnnotation;
 import com.soecode.lyf.entity.People;
+import com.soecode.lyf.messageconvert.EncryptJsonMessageConvert;
 import com.soecode.lyf.vo.BookVo;
 import org.apache.ibatis.annotations.Param;
 import org.hibernate.validator.constraints.NotBlank;
@@ -37,22 +38,18 @@ public class BookController extends BaseController{
 	@Autowired
 	private BookService bookService;
 
-	@RequestMapping(method=RequestMethod.POST,value = "/list")
+	@RequestMapping(value = "/list",method = RequestMethod.POST,produces = {EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE,"application/json"})
 	@ResponseBody
 	@DocAnnotation(comment="查询列表方法")
-	public Object list(@RequestBody @Validated BookVo book/*,BindingResult result*/) {
+	public Object list(@RequestBody @Validated BookVo book) {
 		Result<List<Book>> res = new Result<>();
-		/*if(result.hasErrors()){
-			res.setErrMessage(result.getAllErrors().stream().filter(error -> error != null).map(error -> error.getDefaultMessage()).collect(Collectors.toList()).toString());
-			return res;
-		}*/
 		List<Book> list = bookService.getList();
 		res.setData(list);
 		return res;
 	}
 
 	@DocAnnotation(comment = "查询详情方法")
-	@RequestMapping(method = RequestMethod.GET,value = "/detail")
+	@RequestMapping(value = "/detail",method = RequestMethod.POST,produces = {EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE,"application/json"})
 	@ResponseBody
 	private Object detail(@RequestParam(value = "bookId") @NotNull(message = "bookId不能为空") Long bookId) {
 		Book book = bookService.getById(bookId);
@@ -60,7 +57,7 @@ public class BookController extends BaseController{
 	}
 
 	// ajax json
-	@RequestMapping(value = "/{bookId}/appoint")
+	@RequestMapping(value = "/{bookId}/appoint",method = RequestMethod.POST,produces = {EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE,EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE_UTF8})
 	@ResponseBody
 	@DocAnnotation(comment="订阅书的方法")
 	public Object appoint(@PathVariable("bookId") Long bookId, @RequestParam("studentId") Long studentId) {
