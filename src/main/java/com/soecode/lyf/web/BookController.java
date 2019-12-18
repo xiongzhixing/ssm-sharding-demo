@@ -38,7 +38,11 @@ public class BookController extends BaseController{
 	@Autowired
 	private BookService bookService;
 
-	@RequestMapping(value = "/list",method = RequestMethod.POST,produces = {EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE,"application/json"})
+	@RequestMapping(value = "/list",method = RequestMethod.POST,
+			produces = {EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE,EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE_UTF8,
+					"application/json","application/json;charset=utf-8"},
+			consumes = {EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE,
+					"application/json"})
 	@ResponseBody
 	@DocAnnotation(comment="查询列表方法")
 	public Object list(@RequestBody @Validated BookVo book) {
@@ -49,7 +53,11 @@ public class BookController extends BaseController{
 	}
 
 	@DocAnnotation(comment = "查询详情方法")
-	@RequestMapping(value = "/detail",method = RequestMethod.POST,produces = {EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE,"application/json"})
+	@RequestMapping(value = "/detail",method = RequestMethod.POST,
+			produces = {EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE,EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE_UTF8,
+					"application/json","application/json;charset=utf-8"},
+			consumes = {EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE,EncryptJsonMessageConvert.ENCRYPTED_JSON_TYPE_UTF8,
+					"application/json","application/json;charset=utf-8"})
 	@ResponseBody
 	private Object detail(@RequestParam(value = "bookId") @NotNull(message = "bookId不能为空") Long bookId) {
 		Book book = bookService.getById(bookId);
