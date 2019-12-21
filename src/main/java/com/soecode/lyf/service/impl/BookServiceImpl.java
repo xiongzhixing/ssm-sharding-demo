@@ -11,15 +11,21 @@ import com.soecode.lyf.enums.AppointStateEnum;
 import com.soecode.lyf.exception.AppointException;
 import com.soecode.lyf.exception.NoNumberException;
 import com.soecode.lyf.exception.RepeatAppointException;
+import com.soecode.lyf.manager.BookManager;
 import com.soecode.lyf.service.BaseService;
 import com.soecode.lyf.service.BookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -27,12 +33,17 @@ public class BookServiceImpl extends BaseServiceImpl implements BookService,Base
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	// 注入Service依赖
 	@Autowired
 	private BookDao bookDao;
 
 	@Autowired
+	private BookManager bookManager;
+
+	@Autowired
 	private AppointmentDao appointmentDao;
+
+	@Autowired
+	private ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
 
 	@Override
@@ -100,7 +111,6 @@ public class BookServiceImpl extends BaseServiceImpl implements BookService,Base
 		this.appointmentDao.updateAppointment(1000,12345678910L);
 	}
 
-	@Transactional(rollbackFor = Exception.class)
 	public void test2(){
 		this.appointmentDao.updateAppointment(1000,12345678910L);
 		try {
@@ -111,4 +121,25 @@ public class BookServiceImpl extends BaseServiceImpl implements BookService,Base
 		this.bookDao.reduceNumber(1000);
 	}
 
+	@Transactional(rollbackFor = Exception.class)
+	public void test3() throws ExecutionException, InterruptedException {
+		List<Future<Integer>> futureList = new ArrayList<>();
+		for(int i = 0;i < 3;i++){
+			futureList.add(this.threadPoolTaskExecutor.submit(new Callable<Integer>() {
+				@Override
+				public Integer call() {
+					return bookManager.batchInsert();
+				}
+			}));
+		}
+
+		int success = 0;
+		for(Future<Integer> future:futureList){
+			success += future.get();
+		}
+
+		if(success != 30){
+			throw new RuntimeException("asdsd");
+		}
+	}
 }

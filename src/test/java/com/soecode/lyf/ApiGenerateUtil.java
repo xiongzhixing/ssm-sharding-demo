@@ -1,3 +1,4 @@
+/*
 package com.soecode.lyf;
 
 import com.alibaba.fastjson.JSON;
@@ -379,13 +380,15 @@ public class ApiGenerateUtil {
         }
         return str;
     }
-    /**
+    */
+/**
      *  如果不是java类型，设置子类型
      * @param field  域对象，这里如果是泛型，field是object
      * @param genericCls 如果是泛型，需要传Class对象
      * @param isCollection 是否是泛型集合
      * @return
-     */
+     *//*
+
     private static ParamType setSubClass(Field field,Class genericCls,boolean isCollection){
         if(!field.isAnnotationPresent(DocAnnotation.class)){
             return null;
@@ -494,7 +497,8 @@ public class ApiGenerateUtil {
         return paramType;
     }
 
-    /*private static void setParamType(List<ParamType> paramTypeReqList, DocAnnotation docAnnotation,Parameter parameter) {
+    */
+/*private static void setParamType(List<ParamType> paramTypeReqList, DocAnnotation docAnnotation,Parameter parameter) {
         ParamType paramType = new ParamType();
         paramType.setCommon(StringUtils.isEmpty(docAnnotation.comment()) ? null : docAnnotation.comment());
         paramType.setFill(docAnnotation.isFill());
@@ -513,7 +517,8 @@ public class ApiGenerateUtil {
 
         paramTypeReqList.add(paramType);
         return paramType;
-    }*/
+    }*//*
+
 
     public static String getSimpleType(String path){
         if(StringUtils.isEmpty(path)){
@@ -528,12 +533,14 @@ public class ApiGenerateUtil {
         }
     }
 
-   /* public static void main(String[] args) {
+   */
+/* public static void main(String[] args) {
         System.out.println(getSimpleType("java.lang.String"));
         System.out.println(getSimpleType("String"));
         System.out.println(getSimpleType(null));
         System.out.println(getSimpleType(".Integer"));
-    }*/
+    }*//*
+
 
 
 
@@ -624,13 +631,15 @@ public class ApiGenerateUtil {
         return classes;
     }
 
-    /**
+    */
+/**
      * 以文件的形式来获取包下的所有Class
      * @param packageName
      * @param packagePath
      * @param recursive
      * @param classes
-     */
+     *//*
+
     public static void findAndAddClassesInPackageByFile(String packageName, String packagePath, final boolean recursive, List<Class<?>> classes){
         //获取此包的目录 建立一个File
         File dir = new File(packagePath);
@@ -668,3 +677,4 @@ public class ApiGenerateUtil {
     }
 }
 
+*/

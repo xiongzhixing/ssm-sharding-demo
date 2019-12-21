@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface BookDao {
 
+	int insert(Book book);
+
 	/**
 	 * 通过ID查询单本图书
 	 * 

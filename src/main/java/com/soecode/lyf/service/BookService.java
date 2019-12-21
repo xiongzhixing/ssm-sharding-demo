@@ -1,6 +1,7 @@
 package com.soecode.lyf.service;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 import com.soecode.lyf.dto.AppointExecution;
@@ -42,4 +43,6 @@ public interface BookService {
 	public void test1();
 
 	public void test2();
+
+	public void test3() throws ExecutionException, InterruptedException;
 }

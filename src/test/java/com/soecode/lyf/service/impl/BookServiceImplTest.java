@@ -66,4 +66,9 @@ public class BookServiceImplTest extends BaseTest {
 		while(true){}
 	}
 
+	@Test
+	public void test3() throws Exception {
+		bookService.test3();
+	}
+
 }
