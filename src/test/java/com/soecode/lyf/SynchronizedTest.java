@@ -1,5 +1,7 @@
 package com.soecode.lyf;
 
+import java.util.concurrent.locks.LockSupport;
+
 public class SynchronizedTest {
     //synchronized修饰非静态方法
     public synchronized void function() throws InterruptedException {
@@ -44,5 +46,7 @@ public class SynchronizedTest {
         // 启动
         t1.start();
         t2.start();
+
+        LockSupport.park();
     }
 }

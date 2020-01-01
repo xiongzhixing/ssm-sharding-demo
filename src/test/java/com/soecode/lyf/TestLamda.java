@@ -18,7 +18,11 @@ public class TestLamda {
 
         System.out.println(JSON.toJSONString(peopleList.parallelStream().distinct().collect(Collectors.toList())));
 
-
+        long i = 9;
+        System.out.println(i >> 1);
+        System.out.println(i );
+        System.out.println(i >>> 5);
+        System.out.println(i >>> 5);
 
     }
 
