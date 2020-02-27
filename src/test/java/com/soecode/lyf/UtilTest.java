@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.concurrent.locks.LockSupport;
 import java.util.stream.Collectors;
 
 public class UtilTest {
@@ -55,6 +56,15 @@ public class UtilTest {
 
 
         //
+        /*while(true){
+
+        }*/
+        LockSupport.unpark(Thread.currentThread());
+        System.out.println("a");
+        LockSupport.park(Thread.currentThread());
+        System.out.println("b");
+        LockSupport.park(Thread.currentThread());
+        System.out.println("c");
 
     }
 }
