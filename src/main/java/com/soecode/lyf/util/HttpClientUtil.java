@@ -170,7 +170,7 @@ public class HttpClientUtil {
      * @return
      */
     public static byte[] doPost(String url) {
-        return doPost(url, null,null);
+        return doPostMap(url, null,null);
     }
 
     /**
@@ -180,7 +180,7 @@ public class HttpClientUtil {
      * @return
      */
     public static byte[] doPost(String url,Map<String,String> headers) {
-        return doPost(url, headers,null);
+        return doPostMap(url, headers,null);
     }
 
     /**
