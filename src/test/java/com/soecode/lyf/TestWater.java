@@ -1,5 +1,8 @@
 package com.soecode.lyf;
 
+import com.soecode.lyf.vo.BookDTO;
+import com.soecode.lyf.vo.BookVo;
+
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -8,6 +11,18 @@ public class TestWater {
     private static int[] height =  {1,8,6,2,5,4,8,3,7};
     public static void main(String[] args) {
         System.out.println(new TestWater().maxArea(height));
+
+        BookVo bookVo = new BookVo();
+    }
+
+    public BookDTO trans(BookVo bookVo){
+        BookDTO bookDTO = new BookDTO();
+        bookDTO.setBookId(bookVo.getBookId());
+        bookDTO.setBookName(bookVo.getBookName());
+        bookDTO.setAppKey(bookVo.getAppKey());
+        bookDTO.setTimestamp(bookVo.getTimestamp());
+        bookDTO.setSign(bookVo.getSign());
+        return bookDTO;
     }
     public int maxArea(int[] height) {
         Map<String,Integer> data = new LinkedHashMap<>();
