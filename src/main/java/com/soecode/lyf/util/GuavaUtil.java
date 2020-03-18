@@ -31,6 +31,13 @@ public class GuavaUtil {
         MoreExecutors.addDelayedShutdownHook(threadPoolExecutor,3000,TimeUnit.MILLISECONDS);
     }
 
+    /**
+     *
+     * @param function 传一个抽象的函数
+     * @param <K>  函数参数
+     * @param <V>  函数返回值
+     * @return
+     */
     public static <K,V> CacheLoader<K,V> asyncLoadCacheBuilder(Function<K,V> function){
         return new CacheLoader<K, V>() {
             @Override
