@@ -6,12 +6,13 @@ import com.google.common.cache.LoadingCache;
 import com.soecode.lyf.dao.BookDao;
 import com.soecode.lyf.entity.Book;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
-@Service
+@Component
 public class CacheManage {
     @Autowired
     private BookDao bookDao;
