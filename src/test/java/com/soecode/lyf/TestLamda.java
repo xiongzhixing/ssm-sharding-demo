@@ -12,13 +12,20 @@ public class TestLamda {
         peopleList.add(new People(21,"zs"));
         peopleList.add(new People(12,"ls"));
         peopleList.add(new People(23,"ww"));
-        peopleList.add(new People(23,"ww"));
 
         System.out.println(peopleList.parallelStream().map(p -> p.getAge()).reduce((sum,age) -> sum += age).get());
 
         System.out.println(JSON.toJSONString(peopleList.parallelStream().distinct().collect(Collectors.toList())));
 
 
+        List<People> peopleList1 = new ArrayList<>();
+        peopleList1.add(new People(21,"zs"));
+        peopleList1.add(new People(12,"ls"));
+        peopleList1.add(new People(45,"rf"));
+
+        System.out.println(peopleList1.retainAll(null));
+        System.out.println(peopleList1);
+        System.out.println(peopleList);
 
     }
 
@@ -63,6 +70,11 @@ public class TestLamda {
             int result = age.hashCode();
             result = 31 * result + name.hashCode();
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return "People{" + "age=" + age + ", name='" + name + '\'' + '}';
         }
     }
 }

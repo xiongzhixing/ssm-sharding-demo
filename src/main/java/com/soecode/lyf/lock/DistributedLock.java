@@ -17,12 +17,22 @@ import java.util.stream.Collectors;
  **/
 @Component
 public class DistributedLock {
-    private static boolean isExecuteLock = true;
+    private static boolean isExecuteLockDegrade = true;
     @Autowired
     private RedissonClient redissonClient;
 
-    public <V> V execute(String key, Supplier<V> supplier,long timeoutSeconds) throws InterruptedException {
-        if(!isExecuteLock){
+    /**
+     *
+     * @param key 获取锁的key
+     * @param isSupportLockDegrade 是否支持锁降级
+     * @param supplier 锁获取成功需要调用的方法
+     * @param timeoutSeconds  获锁超时时间
+     * @param <V>  返回值
+     * @return
+     * @throws InterruptedException
+     */
+    public <V> V execute(String key,boolean isSupportLockDegrade,Supplier<V> supplier,long timeoutSeconds) throws InterruptedException {
+        if(isExecuteLockDegrade && isSupportLockDegrade){
             return supplier.get();
         }
         RLock rLock = redissonClient.getLock(key);
@@ -42,8 +52,17 @@ public class DistributedLock {
         }
     }
 
-    public <V> V execute(List<String> keyList, Supplier<V> supplier, long timeoutSeconds) throws InterruptedException {
-        if(!isExecuteLock){
+    /**
+     *
+     * @param keyList 获取锁的key
+     * @param isSupportLockDegrade 是否支持锁降级
+     * @param supplier 锁获取成功需要调用的方法
+     * @param timeoutSeconds  获锁超时时间
+     * @return  <V>  返回值
+     * @throws InterruptedException
+     */
+    public <V> V execute(List<String> keyList,boolean isSupportLockDegrade,Supplier<V> supplier, long timeoutSeconds) throws InterruptedException {
+        if(isExecuteLockDegrade && isSupportLockDegrade){
             return supplier.get();
         }
 
