@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="myProducer" class="org.apache.rocketmq.client.producer.DefaultMQProducer" init-method="start" destroy-method="shutdown">
+        <property name="producerGroup" value="MyProducerGroup" />
+        <property name="namesrvAddr" value="192.168.128.140:9876" />
+    </bean>
+
+    <bean id="myConsumer" class="org.apache.rocketmq.client.consumer.DefaultMQPushConsumer" init-method="start" destroy-method="shutdown">
+        <property name="consumerGroup" value="MyConsumerGroup" />
+        <property name="namesrvAddr" value="192.168.128.140:9876" />
+        <property name="messageListener" ref="testMessageListener" />
+        <property name="subscription">
+            <map>
+                <entry key="mytopic12456" value="*" />
+            </map>
+        </property>
+
+    </bean>
+</beans>
