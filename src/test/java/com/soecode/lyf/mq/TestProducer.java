@@ -22,6 +22,7 @@ public class TestProducer extends BaseTest {
     @Test
     public void test() throws InterruptedException, RemotingException, MQClientException, MQBrokerException {
         Message message = new Message("mytopic12456","hello world   mytopic12".getBytes());
+        message.setDelayTimeLevel(4);
         defaultMQProducer.send(message);
 
         while(true){}
