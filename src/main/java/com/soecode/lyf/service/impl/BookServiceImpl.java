@@ -34,11 +34,11 @@ public class BookServiceImpl implements BookService {
 
 	@Override
 	public Book getById(long bookId) {
-		try {
+		/*try {
 			Thread.sleep(3000);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		}*/
 		return bookDao.queryById(bookId);
 	}
 

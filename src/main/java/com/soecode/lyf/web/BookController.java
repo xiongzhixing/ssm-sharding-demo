@@ -5,7 +5,8 @@ import com.soecode.lyf.dto.Result;
 import com.soecode.lyf.enums.AppointStateEnum;
 import com.soecode.lyf.exception.NoNumberException;
 import com.soecode.lyf.exception.RepeatAppointException;
-import com.soecode.lyf.manager.BookCommand;
+import com.soecode.lyf.manager.BookCommandSemaphore;
+import com.soecode.lyf.manager.BookCommandThreadPool;
 import com.soecode.lyf.service.BookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +24,13 @@ public class BookController {
 	@Autowired
 	private BookService bookService;
 
+	/*@Autowired
+	private BookCommandThreadPool bookCommand;*/
+
 	@Autowired
-	private BookCommand bookCommand;
+	private BookCommandSemaphore bookCommandSemaphore;
+
+
 
 	@RequestMapping(value = "/list", method = RequestMethod.GET)
 	@ResponseBody
@@ -35,7 +41,7 @@ public class BookController {
 	@RequestMapping(value = "/{bookId}/detail", method = RequestMethod.GET)
 	@ResponseBody
 	public Object detail(@PathVariable("bookId") Long bookId, Model model) {
-		return bookCommand.getById(bookId);
+		return bookCommandSemaphore.getById(bookId);
 	}
 
 	// ajax json

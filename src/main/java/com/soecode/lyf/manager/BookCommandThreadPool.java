@@ -22,8 +22,8 @@ import org.springframework.stereotype.Component;
                 @HystrixProperty(name="keepAliveTimeMinutes",value = "2")
         }
 )
-public class BookCommand {
-    private static final Logger logger = LoggerFactory.getLogger(BookCommand.class);
+public class BookCommandThreadPool {
+    private static final Logger logger = LoggerFactory.getLogger(BookCommandThreadPool.class);
     @Autowired
     private BookService bookService;
 
