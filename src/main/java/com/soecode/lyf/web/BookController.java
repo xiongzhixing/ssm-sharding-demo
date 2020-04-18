@@ -44,12 +44,12 @@ public class BookController extends BaseController{
 	@RequestMapping(method=RequestMethod.POST,value = "/list")
 	@ResponseBody
 	@DocAnnotation(comment="查询列表方法")
-	public Result<List<Book>> list(@RequestBody @Validated BookVo book,BindingResult result) {
+	public Result<List<Book>> list(@RequestBody @Validated BookVo book) {
 		Result<List<Book>> res = new Result<>();
-		if(result.hasErrors()){
+		/*if(result.hasErrors()){
 			res.setErrMessage(result.getAllErrors().stream().filter(error -> error != null).map(error -> error.getDefaultMessage()).collect(Collectors.toList()).toString());
 			return res;
-		}
+		}*/
 		List<Book> list = bookService.getList();
 		res.setData(list);
 		return res;
