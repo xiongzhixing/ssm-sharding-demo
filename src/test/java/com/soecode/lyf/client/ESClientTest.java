@@ -3,23 +3,31 @@ package com.soecode.lyf.client;
 import com.alibaba.fastjson.JSON;
 import com.soecode.lyf.BaseTest;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequest;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
-import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetRequest;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.search.MultiSearchResponse;
+import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.reindex.BulkByScrollResponse;
+import org.elasticsearch.index.reindex.DeleteByQueryAction;
+import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.FieldSortBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
@@ -40,11 +48,11 @@ public class ESClientTest extends BaseTest {
 
     @Test
     public void test() throws IOException {
-        IndicesExistsRequest request = new IndicesExistsRequest(INDEX);
+        IndicesExistsRequest request = new IndicesExistsRequest("index");
         IndicesExistsResponse response = client.admin().indices().exists(request).actionGet();
 
         if(!response.isExists()){
-            CreateIndexRequest createIndexRequest = new CreateIndexRequest(INDEX);
+            CreateIndexRequest createIndexRequest = new CreateIndexRequest("index");
             createIndexRequest.settings(Settings.builder()
                     .put("index.number_of_shards", 5)
                     .put("index.number_of_replicas", 1)
@@ -53,7 +61,7 @@ public class ESClientTest extends BaseTest {
             client.admin().indices().create(createIndexRequest);
         }
         for(int i=0;i < 100;i++){
-            IndexResponse indexResponse = client.prepareIndex(INDEX, TYPE, i + 1 + "")
+            IndexResponse indexResponse = client.prepareIndex("index", "type", i + 1 + "")
                     .setSource(jsonBuilder()
                             .startObject()
                             .field("name", NAMELIST.get((int)(Math.random() * NAMELIST.size())))
@@ -112,6 +120,60 @@ public class ESClientTest extends BaseTest {
     public void test6(){
         GetRequest getRequest = new GetRequest(INDEX,TYPE,"2");
         System.out.println(JSON.toJSONString(client.get(getRequest).actionGet()));
+    }
+
+    @Test
+    public void test7(){
+        BulkByScrollResponse response =
+                new DeleteByQueryRequestBuilder(client, DeleteByQueryAction.INSTANCE)
+                        .filter(QueryBuilders.matchQuery("gender","male"))
+                        .source(INDEX)
+                        .get();
+        System.out.println(response.getDeleted());
+    }
+
+    @Test
+    public void test78(){
+        SearchResponse searchResponse = client.prepareSearch("user")
+                .addSort(FieldSortBuilder.DOC_FIELD_NAME, SortOrder.ASC)
+                .setScroll(new TimeValue(60000))
+                //.setQuery(QueryBuilders.matchQuery("gender","male"))
+                .setQuery(QueryBuilders.matchAllQuery())
+                .setSize(10).get();
+
+        int count = 0;
+        do{
+            for(SearchHit hit:searchResponse.getHits().getHits()){
+                String jsonStr = hit.getSourceAsString();
+                System.out.println(jsonStr);
+                count++;
+            }
+            System.out.println("--------" + count);
+
+            searchResponse = client.prepareSearchScroll(searchResponse.getScrollId()).setScroll(new TimeValue(60000)).execute().actionGet();
+        }while(searchResponse.getHits().getHits().length != 0);
+
+        System.out.println("-------" + count);
+    }
+
+    @Test
+    public void test79(){
+        //SearchRequestBuilder searchRequestBuilder = client.prepareSearch("user").setQuery(QueryBuilders.wildcardQuery("name","*l*"));
+        //SearchRequestBuilder searchRequestBuilder = client.prepareSearch("user").setQuery(QueryBuilders.fuzzyQuery("name","l"));
+        //SearchRequestBuilder searchRequestBuilder = client.prepareSearch("user").setQuery(QueryBuilders.idsQuery("user_info").addIds("1","2"));
+        SearchRequestBuilder searchRequestBuilder = client.prepareSearch("user").setQuery(QueryBuilders.wildcardQuery("name","*z*"));
+
+        //SearchRequestBuilder searchRequestBuilder1 = client.prepareSearch("index").setQuery(QueryBuilders.matchQuery("name","zl"));
+
+        MultiSearchResponse multiSearchResponse = client.prepareMultiSearch()
+                .add(searchRequestBuilder)
+                //.add(searchRequestBuilder1)
+                .get();
+        for(MultiSearchResponse.Item item:multiSearchResponse.getResponses()){
+            for(SearchHit searchHit:item.getResponse().getHits().getHits()){
+                System.out.println(searchHit.getSourceAsString());
+            }
+        }
     }
 
 }
