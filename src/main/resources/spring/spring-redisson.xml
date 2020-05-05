@@ -15,15 +15,15 @@
     <redisson:client id="redissonClient">
 
         <redisson:cluster-servers scan-interval="10000">   <!-- //scan-interval:集群状态扫描间隔时间，单位是毫秒 -->
-            <redisson:node-address value="redis://192.168.128.140:7000"></redisson:node-address>
-            <redisson:node-address value="redis://192.168.128.140:7001"></redisson:node-address>
-            <redisson:node-address value="redis://192.168.128.140:7002"></redisson:node-address>
-            <redisson:node-address value="redis://192.168.128.140:7003"></redisson:node-address>
-            <redisson:node-address value="redis://192.168.128.140:7004"></redisson:node-address>
-            <redisson:node-address value="redis://192.168.128.140:7005"></redisson:node-address>
-            <redisson:node-address value="redis://192.168.128.140:7006"></redisson:node-address>
-            <redisson:node-address value="redis://192.168.128.140:7007"></redisson:node-address>
-            <redisson:node-address value="redis://192.168.128.140:7008"></redisson:node-address>
+            <redisson:node-address value="redis://192.168.106.128:7000"></redisson:node-address>
+            <redisson:node-address value="redis://192.168.106.128:7001"></redisson:node-address>
+            <redisson:node-address value="redis://192.168.106.128:7002"></redisson:node-address>
+            <redisson:node-address value="redis://192.168.106.128:7003"></redisson:node-address>
+            <redisson:node-address value="redis://192.168.106.128:7004"></redisson:node-address>
+            <redisson:node-address value="redis://192.168.106.128:7005"></redisson:node-address>
+            <redisson:node-address value="redis://192.168.106.128:7006"></redisson:node-address>
+            <redisson:node-address value="redis://192.168.106.128:7007"></redisson:node-address>
+            <redisson:node-address value="redis://192.168.106.128:7008"></redisson:node-address>
         </redisson:cluster-servers>
     </redisson:client>
 </beans>

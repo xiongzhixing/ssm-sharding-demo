@@ -1,5 +1,6 @@
 package com.soecode.lyf.redis;
 
+import com.google.common.util.concurrent.MoreExecutors;
 import com.soecode.lyf.BaseTest;
 import com.soecode.lyf.lock.DistributedLock;
 import org.junit.After;
@@ -25,6 +26,8 @@ public class DistributedLockTest extends BaseTest{
     static {
         threadPoolExecutor = new ThreadPoolExecutor(
                 3,6,300, TimeUnit.MILLISECONDS,new ArrayBlockingQueue<Runnable>(1000),new ThreadPoolExecutor.DiscardPolicy());
+
+        MoreExecutors.addDelayedShutdownHook(threadPoolExecutor,30000,TimeUnit.MILLISECONDS);
     }
 
     @Autowired
@@ -36,15 +39,20 @@ public class DistributedLockTest extends BaseTest{
         threadPoolExecutor.execute(() -> {
             try {
                 countDownLatch.await();
+                /*try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
                 this.distributedLock.execute("lock",() -> {
                     System.out.println(Thread.currentThread().getName()+ "拿到了锁");
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     return null;
-                },5);
+                },1,false);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -53,15 +61,20 @@ public class DistributedLockTest extends BaseTest{
         threadPoolExecutor.execute(() -> {
             try {
                 countDownLatch.await();
+                /*try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
                 this.distributedLock.execute("lock",() -> {
                     System.out.println(Thread.currentThread().getName()+ "拿到了锁");
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     return null;
-                },5);
+                },1,false);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -69,16 +82,21 @@ public class DistributedLockTest extends BaseTest{
 
         threadPoolExecutor.execute(() -> {
             try {
-                countDownLatch.await();
+                /*countDownLatch.await();
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
                 this.distributedLock.execute("lock",() -> {
                     System.out.println(Thread.currentThread().getName()+ "拿到了锁");
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                     return null;
-                },5);
+                },1,false);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

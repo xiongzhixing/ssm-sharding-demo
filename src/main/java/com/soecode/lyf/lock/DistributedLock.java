@@ -1,5 +1,6 @@
 package com.soecode.lyf.lock;
 
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,23 +17,23 @@ import java.util.stream.Collectors;
  * @date:2020/3/29 0029
  **/
 @Component
+@Slf4j
 public class DistributedLock {
-    private static boolean isExecuteLockDegrade = true;
+    private static boolean isExecuteLockDegrade = false;
     @Autowired
     private RedissonClient redissonClient;
 
     /**
      *
      * @param key 获取锁的key
-     * @param isSupportLockDegrade 是否支持锁降级
      * @param supplier 锁获取成功需要调用的方法
      * @param timeoutSeconds  获锁超时时间
      * @param <V>  返回值
      * @return
      * @throws InterruptedException
      */
-    public <V> V execute(String key,boolean isSupportLockDegrade,Supplier<V> supplier,long timeoutSeconds) throws InterruptedException {
-        if(isExecuteLockDegrade && isSupportLockDegrade){
+    public <V> V execute(String key,Supplier<V> supplier,long timeoutSeconds,boolean isThrowExceptionWhenLockFail) throws InterruptedException {
+        if(isExecuteLockDegrade){
             return supplier.get();
         }
         RLock rLock = redissonClient.getLock(key);
@@ -43,7 +44,11 @@ public class DistributedLock {
             if(isSuccess){
                 return supplier.get();
             }else{
-                throw new RuntimeException("操作太频繁，稍后重试");
+                log.warn("DistributedLock#execute get lock fail.");
+                if(isThrowExceptionWhenLockFail){
+                    throw new RuntimeException("操作太频繁，稍后重试");
+                }
+                return null;
             }
         }finally {
             if(isSuccess){
@@ -55,14 +60,13 @@ public class DistributedLock {
     /**
      *
      * @param keyList 获取锁的key
-     * @param isSupportLockDegrade 是否支持锁降级
      * @param supplier 锁获取成功需要调用的方法
      * @param timeoutSeconds  获锁超时时间
      * @return  <V>  返回值
      * @throws InterruptedException
      */
-    public <V> V execute(List<String> keyList,boolean isSupportLockDegrade,Supplier<V> supplier, long timeoutSeconds) throws InterruptedException {
-        if(isExecuteLockDegrade && isSupportLockDegrade){
+    public <V> V execute(List<String> keyList,Supplier<V> supplier, long timeoutSeconds,boolean isThrowExceptionWhenLockFail) throws InterruptedException {
+        if(isExecuteLockDegrade){
             return supplier.get();
         }
 
@@ -73,7 +77,11 @@ public class DistributedLock {
             if(isSuccess){
                 return supplier.get();
             }else{
-                throw new RuntimeException("操作太频繁，稍后重试");
+                log.warn("DistributedLock#execute get lock fail.");
+                if(isThrowExceptionWhenLockFail){
+                    throw new RuntimeException("操作太频繁，稍后重试");
+                }
+                return null;
             }
         }finally {
             if(isSuccess){
