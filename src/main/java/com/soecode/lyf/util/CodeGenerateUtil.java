@@ -1,4 +1,4 @@
-package com.soecode.lyf;
+package com.soecode.lyf.util;
 
 import lombok.Data;
 import lombok.ToString;
