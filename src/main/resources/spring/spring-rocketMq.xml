@@ -5,16 +5,16 @@
 	http://www.springframework.org/schema/beans/spring-beans.xsd">
     <bean id="myProducer" class="org.apache.rocketmq.client.producer.DefaultMQProducer" init-method="start" destroy-method="shutdown">
         <property name="producerGroup" value="MyProducerGroup" />
-        <property name="namesrvAddr" value="192.168.128.140:9876" />
+        <property name="namesrvAddr" value="192.168.106.128:9876" />
     </bean>
 
     <bean id="myConsumer" class="org.apache.rocketmq.client.consumer.DefaultMQPushConsumer" init-method="start" destroy-method="shutdown">
         <property name="consumerGroup" value="MyConsumerGroup" />
-        <property name="namesrvAddr" value="192.168.128.140:9876" />
+        <property name="namesrvAddr" value="192.168.106.128:9876" />
         <property name="messageListener" ref="testMessageListener" />
         <property name="subscription">
             <map>
-                <entry key="mytopic12456" value="*" />
+                <entry key="mytopic12456789" value="*" />
             </map>
         </property>
 

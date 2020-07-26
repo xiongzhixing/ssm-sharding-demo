@@ -1,4 +1,4 @@
-package com.soecode.lyf.message;
+package com.soecode.lyf.listener;
 
 import org.springframework.stereotype.Component;
 
