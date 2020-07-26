@@ -71,34 +71,29 @@ public class JSUtil {
         }
         if(object instanceof JSONObject){
             for(Map.Entry<String,Object> entry: ((JSONObject)object).entrySet()){
-                if(entry.getValue() instanceof String){
-                    String oneCodeId = (StringUtils.isEmpty(codeId) ? "" : codeId + "-") + entry.getKey();
-                    if(keyAndValue.get(oneCodeId) == null){
-                        keyAndValue.put(oneCodeId,entry.getValue());
-                    }else if(keyAndValue.get(oneCodeId) instanceof String){
-                        keyAndValue.put(oneCodeId, getList((String)keyAndValue.get(oneCodeId),(String)entry.getValue()));
-                    }else if(keyAndValue.get(oneCodeId) instanceof List){
-                        ((List) keyAndValue.get(oneCodeId)).add(entry.getValue());
-                    }
-                }else if(entry.getValue() instanceof JSONObject || entry.getValue() instanceof JSONArray){
-                    parseKeyAndValByVar(keyAndValue,(StringUtils.isEmpty(codeId) ? "" : codeId + "-") + entry.getKey(),entry.getValue());
-                }
+                Object obj = entry.getValue();
+                String oneCodeId = (StringUtils.isEmpty(codeId) ? "" : codeId + "-") + entry.getKey();
+                setValue(keyAndValue, obj, oneCodeId);
             }
         }else if(object instanceof JSONArray){
             for(Object obj:((JSONArray)object)){
-                if(obj instanceof String){
-                    String oneCodeId = codeId;
-                    if(keyAndValue.get(oneCodeId) == null){
-                        keyAndValue.put(oneCodeId,obj);
-                    }else if(keyAndValue.get(oneCodeId) instanceof String){
-                        keyAndValue.put(oneCodeId, getList((String)keyAndValue.get(oneCodeId),(String)obj));
-                    }else if(keyAndValue.get(oneCodeId) instanceof List){
-                        ((List) keyAndValue.get(oneCodeId)).add(obj);
-                    }
-                }else if(object instanceof JSONObject || object instanceof JSONArray){
-                    parseKeyAndValByVar(keyAndValue,codeId,obj);
-                }
+                String oneCodeId = codeId;
+                setValue(keyAndValue, obj, oneCodeId);
             }
+        }
+    }
+
+    private static void setValue(Map<String, Object> keyAndValue, Object obj, String oneCodeId) {
+        if(obj instanceof String){
+            if(keyAndValue.get(oneCodeId) == null){
+                keyAndValue.put(oneCodeId,obj);
+            }else if(keyAndValue.get(oneCodeId) instanceof String){
+                keyAndValue.put(oneCodeId, getList((String)keyAndValue.get(oneCodeId),(String)obj));
+            }else if(keyAndValue.get(oneCodeId) instanceof List){
+                ((List) keyAndValue.get(oneCodeId)).add(obj);
+            }
+        }else if(obj instanceof JSONObject || obj instanceof JSONArray){
+            parseKeyAndValByVar(keyAndValue,oneCodeId,obj);
         }
     }
 
