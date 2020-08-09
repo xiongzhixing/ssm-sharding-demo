@@ -3,6 +3,7 @@ package com.soecode.lyf.vip.resolver;
 import com.soecode.lyf.vip.AbstractVipIdentifyResolver;
 import com.soecode.lyf.vip.dto.BaseVipIdentifyDTO;
 import com.soecode.lyf.vip.dto.HeyTapVipIdentifyDTO;
+import com.soecode.lyf.vip.dto.UserIdentifyDTO;
 import com.soecode.lyf.vip.dto.VipTypeEnum;
 import org.springframework.stereotype.Component;
 
@@ -26,5 +27,10 @@ public class HeyTapVipIdentifyResolver extends AbstractVipIdentifyResolver<HeyTa
     @Override
     protected void setVipFlag(HeyTapVipIdentifyDTO userIdentifyDTO, boolean isVipFlag) {
         userIdentifyDTO.setIsHeyTapVip(isVipFlag);
+    }
+
+    @Override
+    public void setUserIdentify(UserIdentifyDTO totalUserIdentifyDTO, HeyTapVipIdentifyDTO heyTapVipIdentifyDTO) {
+        totalUserIdentifyDTO.setHeyTapVipIdentifyDTO(heyTapVipIdentifyDTO);
     }
 }

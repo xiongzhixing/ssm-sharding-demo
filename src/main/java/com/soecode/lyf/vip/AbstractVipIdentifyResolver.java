@@ -1,10 +1,13 @@
 package com.soecode.lyf.vip;
 
+import com.alibaba.fastjson.JSON;
 import com.soecode.lyf.vip.domain.VipUserStatus;
 import com.soecode.lyf.vip.dto.BaseVipIdentifyDTO;
+import com.soecode.lyf.vip.dto.UserIdentifyDTO;
 import com.soecode.lyf.vip.dto.VipTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -18,9 +21,15 @@ public abstract class AbstractVipIdentifyResolver<T extends BaseVipIdentifyDTO> 
 
     protected abstract void setVipFlag(T userIdentifyDTO, boolean isVipFlag);
 
-    public T queryVipIdentify(List<VipUserStatus> vipUserStatusList,Class<T> cls) throws IllegalAccessException, InstantiationException {
+    public Class<T> getParamClass(){
+        return (Class<T>)((ParameterizedType)this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    }
+
+    public abstract void setUserIdentify(UserIdentifyDTO totalserIdentifyDTO,T t);
+
+    public void queryVipIdentify(UserIdentifyDTO totalUserIdentifyDTO, List<VipUserStatus> vipUserStatusList, Class<T> cls) throws IllegalAccessException, InstantiationException {
         if(CollectionUtils.isEmpty(vipUserStatusList)){
-            return null;
+            return;
         }
 
         VipUserStatus vipUserStatus = vipUserStatusList.stream().filter(Objects::nonNull)
@@ -28,7 +37,7 @@ public abstract class AbstractVipIdentifyResolver<T extends BaseVipIdentifyDTO> 
                 .findFirst().orElse(null);
 
         if(vipUserStatus == null || vipUserStatus.getExpireDate() == null){
-            return null;
+            return;
         }
 
         T userIdentifyDTO = cls.newInstance();
@@ -51,9 +60,10 @@ public abstract class AbstractVipIdentifyResolver<T extends BaseVipIdentifyDTO> 
                         if(v2.getExpireDate() == null){
                             return -1;
                         }
-                        return (int)(v2.getExpireDate().getTime() - v1.getExpireDate().getTime());
+                        return (v2.getExpireDate().getTime() - v1.getExpireDate().getTime()) > 0 ? 1 : -1;
                     }).findFirst().orElse(null);
 
+            //System.out.println("code" + getVipType() + ",higherCodeList=" + JSON.toJSONString(higherCodeList) + ",higherVipLatestVipUserStatus={}" + higherVipLatestVipUserStatus);
             if(higherVipLatestVipUserStatus != null && higherVipLatestVipUserStatus.getExpireDate()  != null){
                 startTime = higherVipLatestVipUserStatus.getExpireDate();
             }
@@ -65,7 +75,6 @@ public abstract class AbstractVipIdentifyResolver<T extends BaseVipIdentifyDTO> 
             setVipFlag(userIdentifyDTO,true);
         }
 
-        return userIdentifyDTO;
+        setUserIdentify(totalUserIdentifyDTO,userIdentifyDTO);
     }
-
 }

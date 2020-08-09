@@ -16,11 +16,11 @@ import java.util.stream.Collectors;
  * @Author:xzx
  * @date:2020/3/29 0029
  **/
-@Component
+//@Component
 @Slf4j
 public class DistributedLock {
     private static boolean isExecuteLockDegrade = false;
-    @Autowired
+    //@Autowired
     private RedissonClient redissonClient;
 
     /**

@@ -2,6 +2,7 @@ package com.soecode.lyf.vip.dto;
 
 import lombok.Data;
 import lombok.ToString;
+import org.apache.commons.lang3.time.FastDateFormat;
 
 import java.util.Date;
 
@@ -18,4 +19,11 @@ public class BaseVipIdentifyDTO {
     private Date startTime;
     private Date endTime;
 
+    public String getStartTimeStr(){
+        return FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").format(startTime);
+    }
+
+    public String getEndTimeStr(){
+        return FastDateFormat.getInstance("yyyy-MM-dd HH:mm:ss").format(endTime);
+    }
 }
