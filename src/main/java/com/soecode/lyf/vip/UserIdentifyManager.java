@@ -12,7 +12,10 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.ParameterizedType;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @Description:TODO
@@ -26,12 +29,21 @@ public class UserIdentifyManager {
 
     public UserIdentifyDTO queryUserIdentify(List<VipUserStatus> vipUserStatusList){
         UserIdentifyDTO userIdentifyDTO = new UserIdentifyDTO();
+
+        List<CompletableFuture> completableFutures = new ArrayList<>();
         for(AbstractVipIdentifyResolver resolver:vipIdentifyResolverList){
-            try {
+            CompletableFuture<Void> completableFuture = CompletableFuture.supplyAsync(() -> {
                 resolver.queryVipIdentify(userIdentifyDTO,vipUserStatusList,resolver.getParamClass());
-            } catch (IllegalAccessException e) {
+                return null;
+            });
+            completableFutures.add(completableFuture);
+        }
+        for(CompletableFuture completableFuture:completableFutures){
+            try {
+                completableFuture.get();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
-            } catch (InstantiationException e) {
+            } catch (ExecutionException e) {
                 e.printStackTrace();
             }
         }

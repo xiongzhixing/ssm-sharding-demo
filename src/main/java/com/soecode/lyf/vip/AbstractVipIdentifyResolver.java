@@ -27,7 +27,7 @@ public abstract class AbstractVipIdentifyResolver<T extends BaseVipIdentifyDTO> 
 
     public abstract void setUserIdentify(UserIdentifyDTO totalserIdentifyDTO,T t);
 
-    public void queryVipIdentify(UserIdentifyDTO totalUserIdentifyDTO, List<VipUserStatus> vipUserStatusList, Class<T> cls) throws IllegalAccessException, InstantiationException {
+    public void queryVipIdentify(UserIdentifyDTO totalUserIdentifyDTO, List<VipUserStatus> vipUserStatusList, Class<T> cls){
         if(CollectionUtils.isEmpty(vipUserStatusList)){
             return;
         }
@@ -40,7 +40,16 @@ public abstract class AbstractVipIdentifyResolver<T extends BaseVipIdentifyDTO> 
             return;
         }
 
-        T userIdentifyDTO = cls.newInstance();
+        T userIdentifyDTO = null;
+        try {
+            userIdentifyDTO = cls.newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            throw new RuntimeException();
+        }
 
         userIdentifyDTO.setCode(getVipType().getCode());
         userIdentifyDTO.setEndTime(vipUserStatus.getExpireDate());
