@@ -15,11 +15,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class HeyTapNewVipIdentifyResolver extends AbstractVipIdentifyResolver<HeyTapNewVipIdentifyDTO>{
     @Override
-    public boolean isVipType(VipTypeEnum vipTypeEnum) {
-        return VipTypeEnum.HEYTAP_NEW_VIP == vipTypeEnum;
-    }
-
-    @Override
     public VipTypeEnum getVipType() {
         return VipTypeEnum.HEYTAP_NEW_VIP;
     }

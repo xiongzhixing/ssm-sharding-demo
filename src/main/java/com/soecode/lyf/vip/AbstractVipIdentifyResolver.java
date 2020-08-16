@@ -14,9 +14,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class AbstractVipIdentifyResolver<T extends BaseVipIdentifyDTO> {
-
-    public abstract boolean isVipType(VipTypeEnum vipTypeEnum);
-
     public abstract VipTypeEnum getVipType();
 
     protected abstract void setVipFlag(T userIdentifyDTO, boolean isVipFlag);
