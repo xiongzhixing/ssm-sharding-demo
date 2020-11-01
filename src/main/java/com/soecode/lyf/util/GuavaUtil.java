@@ -1,5 +1,6 @@
 package com.soecode.lyf.util;
 
+import com.alibaba.ttl.threadpool.TtlExecutors;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -28,7 +29,13 @@ public class GuavaUtil {
         ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("biz-name-%d").build();
         threadPoolExecutor = new ThreadPoolExecutor(
                 16,32,300, TimeUnit.MILLISECONDS,new LinkedBlockingQueue<>(1000),threadFactory,new ThreadPoolExecutor.DiscardPolicy());
-        MoreExecutors.addDelayedShutdownHook(threadPoolExecutor,3000,TimeUnit.MILLISECONDS);
+        MoreExecutors.addDelayedShutdownHook(
+                //解决线程复用，导致TransmittableThreadLocal数据没有清除的问题
+                TtlExecutors.getTtlExecutorService(threadPoolExecutor)
+                ,3000,TimeUnit.MILLISECONDS);
+
+
+
     }
 
     /**
