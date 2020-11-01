@@ -1,10 +1,11 @@
 package com.soecode.lyf.dao;
 
-import com.soecode.lyf.annotation.DataSourceChange;
-import com.soecode.lyf.entity.Book;
+import java.util.Date;
+import java.util.List;
+
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
+import com.soecode.lyf.entity.Book;
 
 public interface BookDao {
 
@@ -14,7 +15,6 @@ public interface BookDao {
 	 * @param id
 	 * @return
 	 */
-	@DataSourceChange(slave = true)
 	Book queryById(long id);
 
 	/**
@@ -24,7 +24,6 @@ public interface BookDao {
 	 * @param limit 查询条数
 	 * @return
 	 */
-	@DataSourceChange(slave = true)
 	List<Book> queryAll(@Param("offset") int offset, @Param("limit") int limit);
 
 	/**

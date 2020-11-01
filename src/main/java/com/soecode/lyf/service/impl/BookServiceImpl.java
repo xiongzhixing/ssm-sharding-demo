@@ -2,9 +2,6 @@ package com.soecode.lyf.service.impl;
 
 import java.util.List;
 
-import com.alibaba.fastjson.JSON;
-import com.soecode.lyf.entity.People;
-import com.soecode.lyf.service.BaseService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +20,7 @@ import com.soecode.lyf.exception.RepeatAppointException;
 import com.soecode.lyf.service.BookService;
 
 @Service
-public class BookServiceImpl extends BaseServiceImpl implements BookService,BaseService {
+public class BookServiceImpl implements BookService {
 
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -78,4 +75,5 @@ public class BookServiceImpl extends BaseServiceImpl implements BookService,Base
 			throw new AppointException("appoint inner error:" + e.getMessage());
 		}
 	}
+
 }

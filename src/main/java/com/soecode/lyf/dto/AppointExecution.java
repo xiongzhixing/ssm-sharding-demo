@@ -1,6 +1,5 @@
 package com.soecode.lyf.dto;
 
-import com.soecode.lyf.annotation.DocAnnotation;
 import com.soecode.lyf.entity.Appointment;
 import com.soecode.lyf.enums.AppointStateEnum;
 
@@ -10,15 +9,12 @@ import com.soecode.lyf.enums.AppointStateEnum;
 public class AppointExecution {
 
 	// 图书ID
-	@DocAnnotation(comment = "图书ID")
 	private long bookId;
 
 	// 秒杀预约结果状态
-	@DocAnnotation(comment = "秒杀预约结果状态")
 	private int state;
 
-	//
-	@DocAnnotation(comment = "状态标识")
+	// 状态标识
 	private String stateInfo;
 
 	// 预约成功对象
