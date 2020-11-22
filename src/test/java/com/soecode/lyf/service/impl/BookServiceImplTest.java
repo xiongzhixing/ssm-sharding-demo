@@ -20,6 +20,7 @@ public class BookServiceImplTest extends BaseTest {
 		long studentId = 12345678910L;
 		AppointExecution execution = bookService.appoint(bookId, studentId);
 		System.out.println(execution);
+		System.out.println("-----------------");
 	}
 
 }
