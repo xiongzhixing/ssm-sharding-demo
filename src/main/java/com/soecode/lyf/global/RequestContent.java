@@ -11,7 +11,7 @@ public class RequestContent extends HashMap<String,String> {
     }
 
     public void setUserId(Integer userId){
-        this.put(USER_ID,String.valueOf(userId));
+        this.put(USER_ID,String.valueOf(userId));   
     }
 
     public String getUserName(){
