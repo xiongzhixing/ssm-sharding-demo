@@ -7,14 +7,7 @@ package com.soecode.lyf;
  **/
 public class Test {
     public static void main(String[] args) {
-        while(true){
-            System.out.println("test");
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+
 
     }
 }
