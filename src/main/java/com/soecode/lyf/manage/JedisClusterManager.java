@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * @Description:封装缓存通用逻辑
+ * @Description:封装redis基于string以及hash的通用操作
  * @Author:xzx
  * @date:2020/3/29 0029
  **/

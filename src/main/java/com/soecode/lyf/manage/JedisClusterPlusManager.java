@@ -2,6 +2,7 @@ package com.soecode.lyf.manage;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
@@ -16,39 +17,57 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * @Description:封装缓存通用逻辑
+ * @Description:redis结合本地缓存，封装redis基于string以及hash的通用操作
  * @Author:xzx
  * @date:2020/3/29 0029
  **/
 @Component
 @Slf4j
-public class JedisClusterPlusManager {
-    private static LoadingCache loadingCache;
+public class JedisClusterPlusManager{
+    private static final String CONCAT_STR = "_";
+    private static Cache<String,String> cache;
     @Autowired
     private JedisCluster jedisCluster;
 
     @PostConstruct
     public void init(){
-        LoadingCache<String,String> loadingCache = CacheBuilder
+        Cache<String, String> cache = CacheBuilder.newBuilder()
+                .initialCapacity(10)
+                .maximumSize(1000)
+                .expireAfterWrite(5, TimeUnit.SECONDS)
+                .expireAfterAccess(12, TimeUnit.HOURS)
+                .build();
+        JedisClusterPlusManager.cache = cache;
     }
 
     public <K,V> V computeByFuntionIfAbsent(String key, K k, TypeReference<V> typeReference, Function<K, V> function,int timeoutSeconds){
-        //redis挂了不影响后续业务，继续往下走
-        String bizJson = this.tryCatch(() -> this.jedisCluster.get(key));
+        //先读取本地缓存
+        String bizJson = cache.getIfPresent(key);
         if(bizJson != null){
+            return JSON.parseObject(bizJson,typeReference);
+        }
+
+        //redis挂了不影响后续业务，继续往下走
+        bizJson = this.tryCatch(() -> this.jedisCluster.get(key));
+        if(bizJson != null){
+            cache.put(key,bizJson);
             return JSON.parseObject(bizJson,typeReference);
         }
 
         V value = function.apply(k);
         if(value != null){
+            String queryBizJson = JSON.toJSONString(value);
+            //存本地缓存
+            cache.put(key,queryBizJson);
             //redis挂了不影响后续业务，继续往下走
             this.tryCatch(() -> {
-                this.jedisCluster.set(key,JSON.toJSONString(value));
+                this.jedisCluster.set(key,queryBizJson);
                 this.jedisCluster.expire(key,timeoutSeconds);
             });
         }
@@ -56,14 +75,25 @@ public class JedisClusterPlusManager {
     }
 
     public <V> V computeBySupplierIfAbsent(String key, TypeReference<V> typeReference, Supplier<V> supplier, int timeoutSeconds){
-        String bizJson = this.tryCatch(() -> this.jedisCluster.get(key));
+        //先读取本地缓存
+        String bizJson = cache.getIfPresent(key);
         if(bizJson != null){
+            return JSON.parseObject(bizJson,typeReference);
+        }
+
+        bizJson = this.tryCatch(() -> this.jedisCluster.get(key));
+        if(bizJson != null){
+            cache.put(key,bizJson);
             return JSON.parseObject(bizJson,typeReference);
         }
         V value = supplier.get();
         if(value != null){
+            String queryBizJson = JSON.toJSONString(value);
+            //存本地缓存
+            cache.put(key,queryBizJson);
+            //redis挂了不影响后续业务，继续往下走
             this.tryCatch(()->{
-                this.jedisCluster.set(key,JSON.toJSONString(value));
+                this.jedisCluster.set(key,queryBizJson);
                 this.jedisCluster.expire(key,timeoutSeconds);
             });
         }
@@ -90,28 +120,27 @@ public class JedisClusterPlusManager {
         if(CollectionUtils.isEmpty(fieldList)){
             return Lists.newArrayList();
         }
-        List<String> valueList = this.tryCatch(() -> this.jedisCluster.hmget(key,fieldList.toArray(new String[0])));
-
         List<V> resultList = Lists.newArrayList();
+        //先读取本地缓存
+        List<String> valueList = fieldList.stream()
+                 .filter(Objects::nonNull)
+                 .map(item -> new StringBuilder().append(key).append(CONCAT_STR).append(item).toString())
+                 .map(item -> cache.getIfPresent(item))
+                 .filter(Objects::nonNull)
+                 .collect(Collectors.toList());
 
         List<String> queryList = Lists.newArrayList(fieldList);
-        if(CollectionUtils.isNotEmpty(valueList)){
-            //解析对象
-            List<V> cacheList = valueList.stream()
-                                    .filter(Objects::nonNull)
-                                    .map(item -> JSON.parseObject(item,typeReference))
-                                    .filter(Objects::nonNull)
-                                    .collect(Collectors.toList());
-
-            if(CollectionUtils.isNotEmpty(cacheList)){
-                queryList.removeAll(
-                        cacheList.stream()
-                                 .map(item -> String.valueOf(priFunction))
-                                 .collect(Collectors.toList())
-                );
-                resultList.addAll(cacheList);
-            }
+        setHashResult(typeReference,priFunction,resultList, valueList, queryList);
+        if(CollectionUtils.isEmpty(queryList)){
+            //本地缓存全部命中,返回结果
+            return resultList;
         }
+
+        //存在没有命中的，去redis里面查询
+        valueList = this.tryCatch(() -> this.jedisCluster.hmget(key,queryList.toArray(new String[0])));
+        //设置Hash结果之后，queryList若不为空，剩下的是本地缓存还有redis都不命中
+        setHashResult(typeReference, priFunction, resultList, valueList, queryList);
+        fillLocalCache(key, typeReference, priFunction, valueList);
 
         if(CollectionUtils.isEmpty(queryList)){
             //缓存全部命中，直接返回
@@ -120,6 +149,39 @@ public class JedisClusterPlusManager {
 
         //缓存没有，查询指定存储，
         List<V> sourceList = function.apply(queryList);
+        //填补redis缓存,redis没有命中，则本地缓存也一定没有命中，在填补redis的时候填补本地缓存
+        fillHashCache(key, priFunction, timeoutSeconds, sourceList);
+        if(CollectionUtils.isNotEmpty(sourceList)){
+            resultList.addAll(sourceList);
+        }
+
+        return resultList;
+    }
+
+    /**
+     *
+     * @param key
+     * @param priFunction
+     * @param timeoutSeconds
+     * @param sourceList
+     * @param <T>
+     * @param <V>
+     */
+    private <T, V> void fillHashCache(String key, Function<V, T> priFunction, int timeoutSeconds,List<V> sourceList) {
+        fillLocalCache2(key,priFunction,sourceList);
+        fillRedisHashCache(key,priFunction,timeoutSeconds,sourceList);
+    }
+
+    /**
+     *
+     * @param key
+     * @param priFunction
+     * @param timeoutSeconds
+     * @param sourceList
+     * @param <T>
+     * @param <V>
+     */
+    private <T, V> void fillRedisHashCache(String key, Function<V, T> priFunction, int timeoutSeconds,List<V> sourceList) {
         if(CollectionUtils.isNotEmpty(sourceList)){
             Map<String,String> fieldMap = sourceList.stream().collect(
                     Collectors.toMap(
@@ -129,17 +191,90 @@ public class JedisClusterPlusManager {
             );
             this.tryCatch(() -> {
                 this.jedisCluster.hmset(key,fieldMap);
-                this.jedisCluster.expire(key,timeoutSeconds);
+                this.jedisCluster.expire(key, timeoutSeconds);
             });
-            resultList.addAll(sourceList);
         }
+    }
 
-        return resultList;
+    /**
+     * 填补本地缓存
+     * @param key
+     * @param typeReference
+     * @param priFunction
+     * @param valueList
+     * @param <T>
+     * @param <V>
+     */
+    private <T, V> void fillLocalCache(String key, TypeReference<V> typeReference, Function<V, T> priFunction, List<String> valueList) {
+        if(CollectionUtils.isNotEmpty(valueList)){
+            //填补本地缓存空白
+            List<V> cacheList = getVList(typeReference, valueList);
+            fillLocalCache2(key,priFunction,cacheList);
+        }
+    }
+
+    /**
+     * 填补本地缓存
+     * @param key
+     * @param priFunction
+     * @param list
+     * @param <T>
+     * @param <V>
+     */
+    private <T, V> void fillLocalCache2(String key,Function<V, T> priFunction, List<V> list) {
+        if(CollectionUtils.isNotEmpty(list)){
+            //填补本地缓存空白
+            cache.putAll(
+                    list.stream()
+                            .filter(Objects::nonNull)
+                            .collect(
+                                    Collectors.toMap(
+                                            item -> new StringBuilder().append(key).append(CONCAT_STR).append(priFunction).toString(),
+                                            item -> JSON.toJSONString(item)
+                                    )
+                            )
+            );
+        }
+    }
+
+    private <T, V> void setHashResult(TypeReference<V> typeReference, Function<V, T> priFunction, List<V> resultList, List<String> valueList, List<String> queryList) {
+        if (CollectionUtils.isNotEmpty(valueList)) {
+            //解析对象
+            List<V> cacheList = getVList(typeReference, valueList);
+
+            if (CollectionUtils.isNotEmpty(cacheList)) {
+                queryList.removeAll(
+                        cacheList.stream()
+                                .map(item -> String.valueOf(priFunction))
+                                .collect(Collectors.toList())
+                );
+                resultList.addAll(cacheList);
+            }
+        }
+    }
+
+    /**
+     * 解析字符换列表到对象列表
+     * @param typeReference
+     * @param valueList
+     * @param <V>
+     * @return
+     */
+    private <V> List<V> getVList(TypeReference<V> typeReference, List<String> valueList) {
+        if(CollectionUtils.isEmpty(valueList)){
+            return Lists.newArrayList();
+        }
+        List<V> cacheList = valueList.stream()
+                                .filter(Objects::nonNull)
+                                .map(item -> JSON.parseObject(item, typeReference))
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.toList());
+        return cacheList;
     }
 
 
     /**
-     * try-catch nihao
+     * 捕获异常
      * @param runnable
      */
     private void tryCatch(Runnable runnable){
@@ -150,6 +285,12 @@ public class JedisClusterPlusManager {
         }
     }
 
+    /**
+     * 捕获异常
+     * @param supplier
+     * @param <T>
+     * @return
+     */
     private <T> T tryCatch(Supplier<T> supplier){
         try{
             return supplier.get();
