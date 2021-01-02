@@ -2,13 +2,17 @@ package com.soecode.lyf.manage;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
+import com.soecode.lyf.util.GuavaUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.JedisCluster;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,8 +28,14 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 public class JedisClusterPlusManager {
+    private static LoadingCache loadingCache;
     @Autowired
     private JedisCluster jedisCluster;
+
+    @PostConstruct
+    public void init(){
+        LoadingCache<String,String> loadingCache = CacheBuilder
+    }
 
     public <K,V> V computeByFuntionIfAbsent(String key, K k, TypeReference<V> typeReference, Function<K, V> function,int timeoutSeconds){
         //redis挂了不影响后续业务，继续往下走
