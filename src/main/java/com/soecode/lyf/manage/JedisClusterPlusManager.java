@@ -40,7 +40,7 @@ public class JedisClusterPlusManager{
         Cache<String, String> cache = CacheBuilder.newBuilder()
                 .initialCapacity(10)
                 .maximumSize(1000)
-                .expireAfterWrite(5, TimeUnit.SECONDS)
+                .expireAfterWrite(5, TimeUnit.HOURS)
                 .expireAfterAccess(12, TimeUnit.HOURS)
                 .build();
         JedisClusterPlusManager.cache = cache;
@@ -185,7 +185,7 @@ public class JedisClusterPlusManager{
         if(CollectionUtils.isNotEmpty(sourceList)){
             Map<String,String> fieldMap = sourceList.stream().collect(
                     Collectors.toMap(
-                            item -> String.valueOf(priFunction),
+                            item -> String.valueOf(priFunction.apply(item)),
                             item -> JSON.toJSONString(Function.identity())
                     )
             );
@@ -229,7 +229,7 @@ public class JedisClusterPlusManager{
                             .filter(Objects::nonNull)
                             .collect(
                                     Collectors.toMap(
-                                            item -> new StringBuilder().append(key).append(CONCAT_STR).append(priFunction).toString(),
+                                            item -> new StringBuilder().append(key).append(CONCAT_STR).append(priFunction.apply(item)).toString(),
                                             item -> JSON.toJSONString(item)
                                     )
                             )
@@ -245,7 +245,7 @@ public class JedisClusterPlusManager{
             if (CollectionUtils.isNotEmpty(cacheList)) {
                 queryList.removeAll(
                         cacheList.stream()
-                                .map(item -> String.valueOf(priFunction))
+                                .map(item -> String.valueOf(priFunction.apply(item)))
                                 .collect(Collectors.toList())
                 );
                 resultList.addAll(cacheList);

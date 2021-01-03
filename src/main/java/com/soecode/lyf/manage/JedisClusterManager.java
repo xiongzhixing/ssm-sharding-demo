@@ -9,10 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import redis.clients.jedis.JedisCluster;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -98,7 +95,7 @@ public class JedisClusterManager {
             if(CollectionUtils.isNotEmpty(cacheList)){
                 queryList.removeAll(
                         cacheList.stream()
-                                 .map(item -> String.valueOf(priFunction))
+                                 .map(item -> String.valueOf(priFunction.apply(item)))
                                  .collect(Collectors.toList())
                 );
                 resultList.addAll(cacheList);
@@ -115,8 +112,8 @@ public class JedisClusterManager {
         if(CollectionUtils.isNotEmpty(sourceList)){
             Map<String,String> fieldMap = sourceList.stream().collect(
                     Collectors.toMap(
-                            item -> String.valueOf(priFunction),
-                            item -> JSON.toJSONString(Function.identity())
+                            item -> String.valueOf(priFunction.apply(item)),
+                            item -> JSON.toJSONString(item)
                     )
             );
             this.tryCatch(() -> {
