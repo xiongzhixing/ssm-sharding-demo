@@ -22,20 +22,23 @@ import java.util.function.Function;
  **/
 @Slf4j
 public class GuavaUtil {
+
     private static ThreadPoolExecutor threadPoolExecutor;
 
-    //类加载时初始化代码块
-    static {
-        ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("biz-name-%d").build();
-        threadPoolExecutor = new ThreadPoolExecutor(
-                16,32,300, TimeUnit.MILLISECONDS,new LinkedBlockingQueue<>(1000),threadFactory,new ThreadPoolExecutor.DiscardPolicy());
-        MoreExecutors.addDelayedShutdownHook(
-                //解决线程复用，导致TransmittableThreadLocal数据没有清除的问题
-                TtlExecutors.getTtlExecutorService(threadPoolExecutor)
-                ,3000,TimeUnit.MILLISECONDS);
-
-
-
+    public static void initPool(){
+        if(threadPoolExecutor == null){
+            synchronized (GuavaUtil.class){
+                if(threadPoolExecutor == null){
+                    ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("biz-name-%d").build();
+                    threadPoolExecutor = new ThreadPoolExecutor(
+                            16,32,300, TimeUnit.MILLISECONDS,new LinkedBlockingQueue<>(1000),threadFactory,new ThreadPoolExecutor.DiscardPolicy());
+                    MoreExecutors.addDelayedShutdownHook(
+                            //解决线程复用，导致TransmittableThreadLocal数据没有清除的问题
+                            TtlExecutors.getTtlExecutorService(threadPoolExecutor)
+                            ,3000,TimeUnit.MILLISECONDS);
+                }
+            }
+        }
     }
 
     /**
@@ -46,6 +49,7 @@ public class GuavaUtil {
      * @return
      */
     public static <K,V> CacheLoader<K,V> asyncLoadCacheBuilder(Function<K,V> function){
+        initPool();
         return new CacheLoader<K, V>() {
             @Override
             public V load(K k) throws Exception {
