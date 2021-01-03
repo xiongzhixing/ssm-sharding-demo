@@ -25,6 +25,9 @@ import java.util.stream.Collectors;
 
 /**
  * @Description:redis结合本地缓存，封装redis基于string以及hash的通用操作
+ *              优点：redis结合本地缓存大大提高了接口的并发性；
+ *              缺点：由于现在服务都是分布式部署，本地缓存可能没有及时更新，这里缓存有效时间设置为5秒，可能造成短暂的数据不一致，
+ *                   对数据有强一致性要求的业务不推荐使用
  * @Author:xzx
  * @date:2020/3/29 0029
  **/
