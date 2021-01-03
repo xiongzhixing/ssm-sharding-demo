@@ -79,7 +79,11 @@ public class JedisClusterManager {
         if(CollectionUtils.isEmpty(fieldList)){
             return Lists.newArrayList();
         }
-        List<String> valueList = this.tryCatch(() -> this.jedisCluster.hmget(key,fieldList.toArray(new String[0])));
+        List<String> valueList = Optional.ofNullable(this.tryCatch(
+                                    () -> this.jedisCluster.hmget(key,fieldList.toArray(new String[0]))))
+                                 .orElse(Lists.newArrayList()).stream()
+                                 .filter(Objects::nonNull)
+                                 .collect(Collectors.toList());
 
         List<V> resultList = Lists.newArrayList();
 

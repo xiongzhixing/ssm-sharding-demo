@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -40,7 +41,7 @@ public class JedisClusterPlusManager{
         Cache<String, String> cache = CacheBuilder.newBuilder()
                 .initialCapacity(10)
                 .maximumSize(1000)
-                .expireAfterWrite(5, TimeUnit.HOURS)
+                .expireAfterWrite(5, TimeUnit.SECONDS)
                 .expireAfterAccess(12, TimeUnit.HOURS)
                 .build();
         JedisClusterPlusManager.cache = cache;
@@ -137,7 +138,11 @@ public class JedisClusterPlusManager{
         }
 
         //存在没有命中的，去redis里面查询
-        valueList = this.tryCatch(() -> this.jedisCluster.hmget(key,queryList.toArray(new String[0])));
+        valueList = Optional.ofNullable(this.tryCatch(
+                        () -> this.jedisCluster.hmget(key,queryList.toArray(new String[0]))
+                    )).orElse(Lists.newArrayList()).stream()
+                      .filter(Objects::nonNull)
+                      .collect(Collectors.toList());
         //设置Hash结果之后，queryList若不为空，剩下的是本地缓存还有redis都不命中
         setHashResult(typeReference, priFunction, resultList, valueList, queryList);
         fillLocalCache(key, typeReference, priFunction, valueList);
