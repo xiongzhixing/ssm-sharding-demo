@@ -194,7 +194,7 @@ public class JedisClusterPlusManager{
             Map<String,String> fieldMap = sourceList.stream().collect(
                     Collectors.toMap(
                             item -> String.valueOf(priFunction.apply(item)),
-                            item -> JSON.toJSONString(Function.identity())
+                            item -> JSON.toJSONString(item)
                     )
             );
             this.tryCatch(() -> {
