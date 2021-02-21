@@ -12,7 +12,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
- * @Description:分布式锁
+ * @Description:分布式锁:基于redisson实现可靠的分布式获取方式，可靠主要表现为：
+ *                     1.通过Lua脚本实现原子的加锁并设置过期时间；
+ *                     2.redisson内置watchdog机制。
  * @Author:xzx
  * @date:2020/3/29 0029
  **/
