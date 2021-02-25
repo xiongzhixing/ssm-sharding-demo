@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
         threadPoolProperties = {
                 @HystrixProperty(name="coreSize",value = "32"),
                 @HystrixProperty(name="maxQueueSize",value = "128"),
-                @HystrixProperty(name="queueSizeRejectionThreshold",value = "64"),
+                @HystrixProperty(name="queueSizeRejectionThreshold",value = "15"),
                 @HystrixProperty(name="keepAliveTimeMinutes",value = "2")
         }
 )

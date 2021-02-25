@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 @DefaultProperties(
         commandProperties = {
                 @HystrixProperty(name = "execution.isolation.strategy",value = "SEMAPHORE"),
-                @HystrixProperty(name = "execution.isolation.semaphore.maxConcurrentRequests",value = "1"),
-                @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds",value = "2000")
+                @HystrixProperty(name = "execution.isolation.semaphore.maxConcurrentRequests",value = "10"),
+                @HystrixProperty(name = "fallback.isolation.semaphore.timeoutInMilliseconds",value = "10")
 
         }
 )
