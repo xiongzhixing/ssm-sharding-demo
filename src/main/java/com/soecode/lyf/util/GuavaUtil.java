@@ -23,18 +23,21 @@ import java.util.function.Function;
 @Slf4j
 public class GuavaUtil {
 
-    private static ThreadPoolExecutor threadPoolExecutor;
+    private static ExecutorService executorService;
 
     public static void initPool(){
-        if(threadPoolExecutor == null){
+        if(executorService == null){
             synchronized (GuavaUtil.class){
-                if(threadPoolExecutor == null){
+                if(executorService == null){
                     ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("biz-name-%d").build();
-                    threadPoolExecutor = new ThreadPoolExecutor(
-                            16,32,300, TimeUnit.MILLISECONDS,new LinkedBlockingQueue<>(1000),threadFactory,new ThreadPoolExecutor.DiscardPolicy());
-                    MoreExecutors.addDelayedShutdownHook(
+                    executorService =
                             //解决线程复用，导致TransmittableThreadLocal数据没有清除的问题
-                            TtlExecutors.getTtlExecutorService(threadPoolExecutor)
+                            TtlExecutors.getTtlExecutorService(
+                                    new ThreadPoolExecutor(16,32,300, TimeUnit.MILLISECONDS,
+                                            new LinkedBlockingQueue<>(1000),threadFactory,new ThreadPoolExecutor.DiscardPolicy())
+                            );
+                    MoreExecutors.addDelayedShutdownHook(
+                            executorService
                             ,3000,TimeUnit.MILLISECONDS);
                 }
             }
@@ -74,7 +77,7 @@ public class GuavaUtil {
                         return oldV;
                     }
                 });
-                threadPoolExecutor.execute(task);
+                executorService.execute(task);
                 return task;
             }
         };
