@@ -233,6 +233,18 @@
             <scope>provided</scope>
         </dependency>
 
+        <!--读取excel文件-->
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.10-FINAL</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>3.10-FINAL</version>
+        </dependency>
+
     </dependencies>
     <build>
         <finalName>ssm</finalName>
