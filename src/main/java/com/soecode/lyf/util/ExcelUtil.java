@@ -106,6 +106,9 @@ public class ExcelUtil<T> {
                         entity = (entity == null ? clazz.newInstance() : entity);// 如果不存在实例则新建.
                         // System.out.println(cells[j].getContents());
                         PropertyDescriptor propertyDescriptor = propertyDescriptorMap.get(j++);// 从map中得到对应列的field.
+                        if(propertyDescriptor == null){
+                            continue;
+                        }
                         // 取得类型,并根据对象类型设置值.
                         Class<?> fieldType = propertyDescriptor.getPropertyType();
 
