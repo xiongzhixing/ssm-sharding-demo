@@ -4,6 +4,7 @@ public class BaseVo {
     private String appKey;
     private Long timestamp;
     private String sign;
+    private Long nonce;
 
     public String getAppKey() {
         return appKey;
@@ -27,5 +28,13 @@ public class BaseVo {
 
     public void setSign(String sign) {
         this.sign = sign;
+    }
+
+    public Long getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(Long nonce) {
+        this.nonce = nonce;
     }
 }
