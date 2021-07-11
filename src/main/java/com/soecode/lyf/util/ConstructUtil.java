@@ -1,17 +1,20 @@
 package com.soecode.lyf.util;
 
 import com.alibaba.fastjson.JSON;
-import com.soecode.lyf.entity.Book;
-import lombok.Data;
-import lombok.ToString;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import lombok.*;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cglib.core.ReflectUtils;
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -25,26 +28,32 @@ public class ConstructUtil {
             return null;
         }
         try{
-            T t = cls.newInstance();
+            //如果是基本类型，直接设置值返回
+            T t = (T)setBaseType(cls);
+            if(t != null){
+                //是基本类型，直接返回
+                return t;
+            }
+
+            //不是基本类型
+            t = cls.newInstance();
             PropertyDescriptor[] propertyDescriptors = ReflectUtils.getBeanProperties(cls);
             for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
                 Class proCls = propertyDescriptor.getPropertyType();
                 if(proCls.getClassLoader() == null){
                     // JAVA 类型
-                    boolean execute = setBaseType(t, propertyDescriptor, proCls,false);
-                    if(execute){
+                    Object proVal = setBaseType(proCls);
+                    if(proVal != null){
+                        //基本类型
+                        propertyDescriptor.getWriteMethod().invoke(t,proVal);
                         continue;
                     }
-                    if(proCls.getName().contains("List")){
-                        //List 集合
-                        Parameter parameter = propertyDescriptor.getWriteMethod().getParameters()[0];
-                        Class paramCls = (Class) ((ParameterizedType)parameter.getParameterizedType()).getActualTypeArguments()[0];
-                        if(paramCls.getClassLoader() != null){
-                            //自定义类型
-                            propertyDescriptor.getWriteMethod().invoke(t,Arrays.asList(construct(paramCls)));
-                        }else{
-                            setBaseType(t, propertyDescriptor, proCls,true);
-                        }
+                    //不是基本类型
+                    if(Collection.class.isAssignableFrom(proCls) || Map.class.isAssignableFrom(proCls)){
+                        //集合类型
+                        Type type = propertyDescriptor.getWriteMethod().getParameters()[0].getParameterizedType();
+                        proVal = generateCollection(type);
+                        propertyDescriptor.getWriteMethod().invoke(t,proVal);
                     }else{
                         throw new RuntimeException("未知的java类型：" + proCls.getName());
                     }
@@ -61,39 +70,76 @@ public class ConstructUtil {
 
     }
 
-    private static <T> boolean setBaseType(T t, PropertyDescriptor propertyDescriptor, Class proCls,boolean isArray) throws Exception{
-        if(Boolean.class == proCls || boolean.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateBoolean()):generateBoolean());
-            return true;
-        }else if(Byte.class == proCls || byte.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateByte()):generateByte());
-            return true;
-        }else if(Character.class == proCls || char.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateChar()):generateChar());
-            return true;
-        }else if(Short.class == proCls || short.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateShort()):generateShort());
-            return true;
-        }else if(Integer.class == proCls || int.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateInteger()):generateInteger());
-            return true;
-        }else if(Long.class == proCls || long.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateLong()):generateLong());
-            return true;
-        }else if(Float.class == proCls || float.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateFloat()):generateFloat());
-            return true;
-        }else if(Double.class == proCls || double.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateDouble()):generateDouble());
-            return true;
-        }else if(String.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateString()):generateString());
-            return true;
-        }else if(Date.class == proCls){
-            propertyDescriptor.getWriteMethod().invoke(t,isArray ? Arrays.asList(generateDate()):generateDate());
-            return true;
+    private static Object generateCollection(Type type) {
+        if(type == null){
+            return null;
         }
-        return false;
+        Object proVal = null;
+
+        if(type instanceof ParameterizedType){
+            Type[] types = ((ParameterizedType) type).getActualTypeArguments();
+            if(types.length == 1){
+                //List
+                proVal = Lists.newArrayList(generateTypeVal(types[0]));
+            }else if(types.length == 2){
+                //Map
+                Object keyVal = generateTypeVal(types[0]);
+                Object valVal = generateTypeVal(types[1]);
+
+                Map map = new HashMap();
+                map.put(keyVal,valVal);
+
+                proVal = map;
+            }else{
+                throw new RuntimeException("未知的参数类型");
+            }
+        }else{
+            throw new RuntimeException("未知的参数类型");
+        }
+
+        return proVal;
+    }
+
+    private static Object generateTypeVal(Type type) {
+        Object proVal;
+        if(type instanceof Class){
+            //具体的某个类型
+            proVal = construct((Class) type);
+        }else if(type instanceof ParameterizedType){
+            //还是集合
+            proVal = Lists.newArrayList(generateTypeVal(((ParameterizedTypeImpl) type).getActualTypeArguments()[0]));
+        }else{
+            throw new RuntimeException("未知的参数类型");
+        }
+        return proVal;
+    }
+
+    private static Object setBaseType(Class proCls){
+        if(Boolean.class == proCls || boolean.class == proCls){
+            return generateBoolean();
+        }else if(Byte.class == proCls || byte.class == proCls){
+            return generateByte();
+        }else if(Character.class == proCls || char.class == proCls){
+            return generateChar();
+        }else if(Short.class == proCls || short.class == proCls){
+            return generateShort();
+        }else if(Integer.class == proCls || int.class == proCls){
+            return generateInteger();
+        }else if(Long.class == proCls || long.class == proCls){
+            return generateLong();
+        }else if(Float.class == proCls || float.class == proCls){
+            return generateFloat();
+        }else if(Double.class == proCls || double.class == proCls){
+            return generateDouble();
+        }else if(String.class == proCls){
+            return generateString();
+        }else if(Date.class == proCls){
+            return generateDate();
+        }else if(proCls.isEnum()){
+            //枚举
+            return EnumUtils.getEnumList(proCls).get(0);
+        }
+        return null;
     }
 
     private static boolean generateBoolean(){
@@ -143,9 +189,30 @@ public class ConstructUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        System.out.println(JSON.toJSONString(ConstructUtil.construct(People.class)));
+        //System.out.println(JSON.toJSONString(ConstructUtil.construct(People.class)));
         System.out.println(JSON.toJSONString(ConstructUtil.construct(Women.class)));
-        System.out.println(JSON.toJSONString(ConstructUtil.construct(Book.class)));
+
+        System.out.println(ConstructUtil.construct(String.class));
+
+
+        Map<List<List<Dog>>,List<Dog>> map = new HashMap<>();
+
+        List<List<Dog>> keyList = new ArrayList<>();
+
+        List<Dog> list1 = new ArrayList<>();
+
+        list1.add(Dog.builder().name("xzx").build());
+
+        keyList.add(list1);
+
+        List<Dog> list2 = new ArrayList<>();
+
+        list2.add(Dog.builder().name("xzx").build());
+
+        map.put(keyList,list2);
+
+        System.out.println(JSON.toJSONString(map));
+
     }
 
 
@@ -182,13 +249,26 @@ public class ConstructUtil {
 
     @Data
     @ToString(callSuper = true)
-    static class Women extends People{
+    static class Women {
         private List<Dog> v;
+        private Map<List<List<Dog>>,List<Dog>> z;
+        private StatusEnum a;
+
+
     }
 
     @Data
     @ToString(callSuper = true)
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
     static class Dog{
         private String name;
+    }
+
+    static enum StatusEnum{
+        A,
+        B,
+        C;
     }
 }
