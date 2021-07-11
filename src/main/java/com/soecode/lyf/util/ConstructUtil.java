@@ -1,28 +1,24 @@
 package com.soecode.lyf.util;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cglib.core.ReflectUtils;
 import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Parameter;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 
 /**
  * @author Administrator
  */
+@Slf4j
 public class ConstructUtil {
-    private static final Logger logger = LoggerFactory.getLogger(ConstructUtil.class);
-
     public static <T> T construct(Class<T> cls){
         if (cls == null) {
             return null;
@@ -64,7 +60,7 @@ public class ConstructUtil {
             }
             return t;
         }catch(Exception e){
-            logger.error("ConstructUtil#construct catch a exception.",e);
+            log.error("ConstructUtil#construct catch a exception.",e);
             return null;
         }
 
@@ -79,15 +75,22 @@ public class ConstructUtil {
         if(type instanceof ParameterizedType){
             Type[] types = ((ParameterizedType) type).getActualTypeArguments();
             if(types.length == 1){
-                //List
-                proVal = Lists.newArrayList(generateTypeVal(types[0]));
+                //列表集合
+                Class proCls = ((ParameterizedTypeImpl) type).getRawType();
+                if(List.class.isAssignableFrom(proCls)){
+                    //List
+                    proVal = new ArrayList(Arrays.asList(generateTypeVal(types[0])));
+                }else if(Set.class.isAssignableFrom(proCls)){
+                    proVal = new HashSet(Arrays.asList(generateTypeVal(types[0])));
+                }else if(Queue.class.isAssignableFrom(proCls)){
+                    proVal = new ArrayBlockingQueue(1,false,Arrays.asList(generateTypeVal(types[0])));
+                }else{
+                    throw new RuntimeException("未知的参数类型");
+                }
             }else if(types.length == 2){
-                //Map
-                Object keyVal = generateTypeVal(types[0]);
-                Object valVal = generateTypeVal(types[1]);
-
+                //键值对集合 Map
                 Map map = new HashMap();
-                map.put(keyVal,valVal);
+                map.put(generateTypeVal(types[0]),generateTypeVal(types[1]));
 
                 proVal = map;
             }else{
@@ -107,7 +110,7 @@ public class ConstructUtil {
             proVal = construct((Class) type);
         }else if(type instanceof ParameterizedType){
             //还是集合
-            proVal = Lists.newArrayList(generateTypeVal(((ParameterizedTypeImpl) type).getActualTypeArguments()[0]));
+            proVal = new ArrayList(Arrays.asList(generateTypeVal(((ParameterizedTypeImpl) type).getActualTypeArguments()[0])));
         }else{
             throw new RuntimeException("未知的参数类型");
         }
@@ -192,27 +195,7 @@ public class ConstructUtil {
         //System.out.println(JSON.toJSONString(ConstructUtil.construct(People.class)));
         System.out.println(JSON.toJSONString(ConstructUtil.construct(Women.class)));
 
-        System.out.println(ConstructUtil.construct(String.class));
-
-
-        Map<List<List<Dog>>,List<Dog>> map = new HashMap<>();
-
-        List<List<Dog>> keyList = new ArrayList<>();
-
-        List<Dog> list1 = new ArrayList<>();
-
-        list1.add(Dog.builder().name("xzx").build());
-
-        keyList.add(list1);
-
-        List<Dog> list2 = new ArrayList<>();
-
-        list2.add(Dog.builder().name("xzx").build());
-
-        map.put(keyList,list2);
-
-        System.out.println(JSON.toJSONString(map));
-
+        //System.out.println(ConstructUtil.construct(String.class));
     }
 
 
@@ -253,6 +236,11 @@ public class ConstructUtil {
         private List<Dog> v;
         private Map<List<List<Dog>>,List<Dog>> z;
         private StatusEnum a;
+        private Set<String> b;
+        private Set<String> c;
+        private Map<List<String>,List<List<Dog>>> e;
+
+        private Queue<List<String>> f;
 
 
     }
