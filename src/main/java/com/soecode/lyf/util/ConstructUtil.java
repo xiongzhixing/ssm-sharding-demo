@@ -11,6 +11,7 @@ import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -88,7 +89,7 @@ public class ConstructUtil {
                     throw new RuntimeException("未知的参数类型");
                 }
             }else if(types.length == 2){
-                //键值对集合 Map 
+                //键值对集合 Map
                 Map map = new HashMap();
                 map.put(generateTypeVal(types[0]),generateTypeVal(types[1]));
 
@@ -138,6 +139,8 @@ public class ConstructUtil {
             return generateString();
         }else if(Date.class == proCls){
             return generateDate();
+        }else if(BigDecimal.class == proCls){
+            return generateBigDecimal();
         }else if(proCls.isEnum()){
             //枚举
             return EnumUtils.getEnumList(proCls).get(0);
@@ -181,6 +184,10 @@ public class ConstructUtil {
     private static Date generateDate(){
         Date now = new Date();
         return DateUtils.addDays(now,((int)(Math.random() * 365) - 365));
+    }
+
+    private static BigDecimal generateBigDecimal(){
+        return new BigDecimal(((int)(Math.random() * 10)));
     }
 
     private static Integer generateInteger(){
