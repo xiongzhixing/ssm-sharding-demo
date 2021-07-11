@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.soecode.lyf.BaseTest;
 import com.soecode.lyf.dao.deal.BookDao;
 import com.soecode.lyf.entity.deal.BookDO;
+import com.soecode.lyf.util.ConstructUtil;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -45,12 +46,14 @@ public class BookDaoTest extends BaseTest {
 
 	@Test
 	public void testInsert() throws Exception {
-		BookDO book = new BookDO();
-		book.setBookId(1009L);
-		book.setName("java");
-		book.setNumber(1000);
+		long i = 1;
+		while(i <= 1000){
+			BookDO book = ConstructUtil.construct(BookDO.class);
+			book.setBookId(i++);
+			bookDao.insert(book);
 
-		System.out.println(JSON.toJSONString(bookDao.insert(book)));
+			System.out.println(i);
+		}
 	}
 
 	@Test
