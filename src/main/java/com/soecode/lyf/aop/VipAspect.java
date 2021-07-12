@@ -20,13 +20,29 @@ public class VipAspect {
      *
      * @return
      */
-    @Around(value = "execution(* com.soecode.lyf.web..*.*(..)) && @annotation(isVip)")
+    /*@Around(value = "execution(* com.soecode.lyf.web..*.*(..)) && @annotation(isVip)")
     public Object doAround(ProceedingJoinPoint jp, IsVip isVip) {
         RequestContent requestContent = RequestContentManager.get();
         logger.info("VipAspect#doAround requestContent={}",requestContent);
         if(requestContent.getUserId() != 100){
             throw new RuntimeException("不是vip");
         }
+        Object result = null;
+        try {
+            result =  jp.proceed();
+        } catch (Throwable throwable) {
+            logger.error("VipAspect#doAround catch a exception.",throwable);
+        }finally {
+            RequestContentManager.remove();
+        }
+        return result;
+    }*/
+
+
+    @Around(value = "execution(* com.soecode.lyf.web..*.*(..))")
+    public Object doAround(ProceedingJoinPoint jp) {
+        RequestContent requestContent = RequestContentManager.get();
+        logger.info("VipAspect#doAround requestContent={}",requestContent);
         Object result = null;
         try {
             result =  jp.proceed();

@@ -21,4 +21,18 @@
 		<!-- 默认匹配所有的请求 -->
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
+
+
+	<!-- 配置过滤器 -->
+	<filter>
+		<filter-name>clearContentServletFilter</filter-name>
+		<filter-class>com.soecode.lyf.filter.ClearContentServletFilter</filter-class>
+	</filter>
+
+	<!-- 映射过滤器 -->
+	<filter-mapping>
+		<filter-name>clearContentServletFilter</filter-name>
+		<!-- “/*”表示拦截所有的请求 -->
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
 </web-app>
