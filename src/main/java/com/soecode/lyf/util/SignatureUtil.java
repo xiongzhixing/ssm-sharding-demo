@@ -14,7 +14,7 @@ import java.util.*;
 public class SignatureUtil {
     private static final Logger logger = LoggerFactory.getLogger(SignatureUtil.class);
 
-    public static List<String> getRequestParamList(Object o, Set<String> excludeProperties){
+    public static List<String> getRequestParamList(Object o, Set<String> excludeProperties) throws Exception {
         List<String> properties = new ArrayList<>();
         if (o == null) {
             return properties;
@@ -34,21 +34,15 @@ public class SignatureUtil {
             return properties;
         } catch (Exception e) {
             logger.error("SignatureUtil#getRequestParam catch a exception.",e);
-            return null;
+            throw e;
         }
     }
 
-    public static String getRequestParamStr(Object o, Set<String> excludeProperties){
-        try{
-            List<String> keyValList = getRequestParamList(o,excludeProperties);
-            StringBuilder stringBuilder = new StringBuilder("");
-            keyValList.stream().forEach(str -> stringBuilder.append(str).append("&"));
-            return stringBuilder.toString().substring(0,stringBuilder.length() - 1);
-        }catch (Exception e){
-            logger.error("SignatureUtil#getRequestParamStr catch a exception",e);
-            return null;
-        }
-
+    public static String getRequestParamStr(Object o, Set<String> excludeProperties) throws Exception {
+        List<String> keyValList = getRequestParamList(o,excludeProperties);
+        StringBuilder stringBuilder = new StringBuilder("");
+        keyValList.stream().forEach(str -> stringBuilder.append(str).append("&"));
+        return stringBuilder.toString().substring(0,stringBuilder.length() - 1);
     }
 
     public static void main(String[] args) throws Exception {
@@ -56,7 +50,7 @@ public class SignatureUtil {
         bookVo.setBookId(1000);
         bookVo.setBookName("java");
         bookVo.setAppKey("appKey");
-        bookVo.setTimestamp(System.currentTimeMillis());
+        bookVo.setTimestamp(new Date().getTime());
         String str = SignatureUtil.getRequestParamStr(bookVo,new HashSet<String>(Arrays.asList("sign")));
         logger.info("sign str={}",str);
         String sign = DigestUtils.md5DigestAsHex(str.getBytes());
