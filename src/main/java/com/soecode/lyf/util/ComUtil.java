@@ -1,6 +1,5 @@
 package com.soecode.lyf.util;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import lombok.*;
@@ -8,11 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.springframework.cglib.core.ReflectUtils;
-import org.springframework.util.ReflectionUtils;
 
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.List;

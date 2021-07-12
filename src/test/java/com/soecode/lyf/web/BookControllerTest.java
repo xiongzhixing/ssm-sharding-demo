@@ -21,7 +21,7 @@ import java.util.Map;
 public class BookControllerTest  {
 
 	@Test
-	public void test() throws UnsupportedEncodingException {
+	public void test() throws Exception {
 		Map<String,String> headMap = new HashMap<>();
 		headMap.put("Content-type","application/encrypt-json;charset=utf-8");
 		headMap.put("Accept","application/encrypt-json;charset=utf-8");
